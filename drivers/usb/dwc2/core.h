@@ -38,12 +38,12 @@ dwc2_printk(const char *comp, const char *fmt, ...)
 #define DWC2_HOST_MODE_ENABLE	1
 #define DWC2_DEVICE_MODE_ENABLE	1
 
-#ifdef CONFIG_USB_DWC2_HOST_ONLY
+#if IS_ENABLED(CONFIG_USB_DWC2_HOST_ONLY)
 #undef DWC2_DEVICE_MODE_ENABLE
 #define DWC2_DEVICE_MODE_ENABLE	0
 #endif
 
-#ifdef CONFIG_USB_DWC2_DEVICE_ONLY
+#if IS_ENABLED(CONFIG_USB_DWC2_DEVICE_ONLY)
 #undef DWC2_HOST_MODE_ENABLE
 #define DWC2_HOST_MODE_ENABLE	0
 #endif
@@ -145,8 +145,8 @@ struct dwc2_ep {
 
 	const struct usb_endpoint_descriptor	*desc;
 
-        void                   *align_addr;
-        dma_addr_t              align_dma_addr;
+	void                   *align_addr;
+	dma_addr_t              align_dma_addr;
 #define DWC2_DEP_ALIGN_ALLOC_SIZE (1 * PAGE_SIZE)
 };
 
@@ -229,6 +229,7 @@ struct dwc2_isoc_qh_ptr {
 	struct list_head frm_list; /* in dwc2 and dwc2_frame */
 	struct list_head qh_list;  /* in dwc2_qh */
 	struct dwc2_qh *qh;
+	unsigned char uframe_index;
 };
 
 struct dwc2_frame {
@@ -374,19 +375,12 @@ struct dwc2_host_if {
  * @hwcfg2: HWCFG2
  * @hwcfg3: HWCFG3
  * @hwcfg4: HWCFG4
- * @hptxfsiz: HPTXFSIZ
- * @hcfg: HCFG
- * @dcfg: DCFG
  */
 struct dwc2_hwcfgs {
 	hwcfg1_data_t	hwcfg1;
 	hwcfg2_data_t	hwcfg2;
 	hwcfg3_data_t	hwcfg3;
 	hwcfg4_data_t	hwcfg4;
-	fifosize_data_t hptxfsiz;
-
-	hcfg_data_t	hcfg;
-	dcfg_data_t	dcfg;
 };
 
 struct dwc2_platform_data {
@@ -444,16 +438,16 @@ struct dwc2 {
 	dma_addr_t			 ctrl_req_addr;
 #define DWC2_CTRL_REQ_ACTUAL_ALLOC_SIZE	 (4 * PAGE_SIZE)
 	int				 setup_prepared;
-    int                              last_ep0out_normal;
+	int                              last_ep0out_normal;
 
-	u16				 status_buf;
+	u16				 *status_buf;
 	dma_addr_t			 status_buf_addr;
 	struct dwc2_request		 ep0_usb_req;
 	/*
 	 * because ep0out did not allow disable operation,
 	 * we use a shadow buffer here to avoid memory corruption
 	 */
-	u8				 ep0out_shadow_buf[DWC_EP0_MAXPACKET];
+	u8				*ep0out_shadow_buf;
 	void 				*ep0out_shadow_uncached;
 	u32				 ep0out_shadow_dma;
 
@@ -507,18 +501,12 @@ struct dwc2 {
 	unsigned			 b_hnp_enable:1;
 	unsigned			 a_hnp_support:1;
 	unsigned			 a_alt_hnp_support:1;
-	unsigned			 plugin:1;
+	volatile unsigned	 plugin:1;
 	unsigned			 keep_phy_on:1;
 	/* for suspend/resume */
-	unsigned			 suspended:1;  /* 0: running, 1: suspended */
-	unsigned			 phy_status:1; /* 0: suspend, 1: on */
-	unsigned			 sftdiscon:1;
-	unsigned			 plug_status:1;
+	volatile unsigned		 suspended:1;  /* 0: running, 1: suspended */
 
 	unsigned int			 gintmsk;
-#ifdef CONFIG_USB_DWC2_ALLOW_WAKEUP
-	struct wake_lock                 resume_wake_lock;
-#endif
 
 	int pullup_on;
 	enum dwc2_ep0_state		 ep0state;
@@ -586,7 +574,7 @@ struct dwc2 {
 	u8			test_mode;
 	u8			test_mode_nr;
 
-        unsigned long           deps_align_addr;
+	unsigned long           deps_align_addr;
 };
 
 #define USECS_INFINITE		((unsigned int)~0)
@@ -734,5 +722,4 @@ void dwc2_flush_rx_fifo(struct dwc2 *dwc);
 
 void dwc2_enable_global_interrupts(struct dwc2 *dwc);
 void dwc2_disable_global_interrupts(struct dwc2 *dwc);
-void dwc2_disable_vbus_detect(struct dwc2 *dwc);
 #endif /* __DRIVERS_USB_DWC2_CORE_H */

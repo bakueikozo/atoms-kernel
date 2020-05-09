@@ -93,7 +93,7 @@ struct jz_gpio_func_def platform_devio_array[] = {
 #endif
 #endif
 
-#ifdef CONFIG_JZ_DMIC_V12
+#if defined( CONFIG_JZ_DMIC_V12 ) || defined ( CONFIG_JZ_TS_DMIC )
 	DMIC_PORTC,
 #endif
 
@@ -551,6 +551,37 @@ struct platform_device jz_codec_device = {
 	.name = "jz_codec",
 };
 #endif
+#endif
+
+#ifdef CONFIG_JZ_TS_DMIC
+static struct resource mic_resources[] = {
+    /**
+     * dmic resource
+     */
+    [0] = {
+        .start          = DMIC_IOBASE,
+        .end            = DMIC_IOBASE + 0x70 -1,
+        .flags          = IORESOURCE_MEM,
+    },
+    [1] = {
+        .start          = IRQ_DMIC,
+        .end            = IRQ_DMIC,
+        .flags          = IORESOURCE_IRQ,
+    },
+    [2] = {
+        .start          = JZDMA_REQ_I2S1,
+        .end            = JZDMA_REQ_I2S1,
+        .flags          = IORESOURCE_DMA,
+    },
+
+};
+
+struct platform_device mic_device = {
+    .name           = "dmic",
+    .id             = -1,
+    .resource       = mic_resources,
+    .num_resources  = ARRAY_SIZE(mic_resources),
+};
 #endif
 
 /* only for ALSA platform devices */

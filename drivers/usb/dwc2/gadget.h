@@ -5,6 +5,8 @@
 #include <linux/list.h>
 #include <linux/usb/gadget.h>
 
+#define DWC_NUMBER_OF_HB_EP	1
+
 struct dwc2;
 #define to_dwc2_ep(ep)		(container_of(ep, struct dwc2_ep, usb_ep))
 #define gadget_to_dwc(g)	(container_of(g, struct dwc2, gadget))

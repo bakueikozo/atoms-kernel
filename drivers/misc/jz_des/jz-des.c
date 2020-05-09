@@ -151,10 +151,12 @@ const struct file_operations des_fops = {
 	/*.release = des_release,*/
 };
 
+#if 0
 static irqreturn_t des_ope_irq_handler(int irq, void *data)
 {
 	return 0;
 }
+#endif
 
 #ifdef FPGA_TEST
 /*
@@ -300,13 +302,14 @@ static int ingenic_des_probe(struct platform_device *pdev)
 	}
 	des_debug("%s, des iomem is :0x%08x\n", __func__, (unsigned int)des_ope->iomem);
 
+#if 0
 	des_ope->irq = platform_get_irq(pdev, 0);
 	if (request_irq(des_ope->irq, des_ope_irq_handler, IRQF_SHARED, des_ope->name, des_ope)) {
 		dev_err(&pdev->dev, "request irq failed\n");
 		return -EINVAL;
 	}
 	des_debug("%s, des irq is : %d\n",__func__, des_ope->irq);
-
+#endif
 	/****************************************************************/
 
 	des_ope->des_dev.minor = MISC_DYNAMIC_MINOR;

@@ -71,7 +71,7 @@ static void jzrtc_writel(struct jz_rtc *dev,int offset, unsigned int value)
 	int timeout = 0x100000;
 //	wait_write_ready(dev);
 	writel(WENR_WENPAT_WRITABLE, dev->iomem + RTC_WENR);
-	wait_write_ready(dev);
+    wait_write_ready(dev);
 	while (!(jzrtc_readl(dev,RTC_WENR) & WENR_WEN) && timeout--);
 	if (timeout <= 0)
 		pr_info("RTC :  wait_writable timeout!\n");
@@ -354,19 +354,27 @@ static void jz_rtc_enable(struct jz_rtc *rtc)
 	 * For other situations, we remain the rtc status unchanged.
 	 */
 
+
+#ifdef CONFIG_USE_EXTERNAL_24M_CLOCK
+    /* set external clock 24000000 */
+//	writel(WENR_WENPAT_WRITABLE, rtc->iomem + RTC_WENR);
+	writel(0x2, rtc->iomem + RTC_RTCCR);
+#endif
 //	cpm_set_clock(CGU_RTCCLK, 32768); //later to know if we need to set it ,it may decided by hardware.
-	cfc = HSPR_RTCV;
+    cfc = HSPR_RTCV;
 	hspr = jzrtc_readl(rtc, RTC_HSPR);
 	rgr_1hz = jzrtc_readl(rtc, RTC_RTCGR) & RTCGR_NC1HZ_MASK;
 
 	if ((hspr != cfc) || (rgr_1hz != RTC_FREQ_DIVIDER)) {
 		/* We are powered on for the first time !!! */
 
-		pr_info("jz-rtc: rtc power on reset !\n");
-
+#ifdef CONFIG_USE_EXTERNAL_24M_CLOCK
+		/* Set 24000000 rtc clocks per seconds */
+        jzrtc_writel(rtc, RTC_RTCGR, EXTERNAL_RTC_FREQ_DIVIDER);
+#else
 		/* Set 32768 rtc clocks per seconds */
 		jzrtc_writel(rtc, RTC_RTCGR, RTC_FREQ_DIVIDER);
-
+#endif
 		/* Set minimum wakeup_n pin low-level assertion time for wakeup: 100ms */
 		jzrtc_writel(rtc, RTC_HWFCR, HWFCR_WAIT_TIME(100));
 		jzrtc_writel(rtc, RTC_HRCR, HRCR_WAIT_TIME(60));
@@ -380,7 +388,11 @@ static void jz_rtc_enable(struct jz_rtc *rtc)
 		jzrtc_writel(rtc, RTC_RTCSAR, 0);
 
 		/* start rtc */
-		jzrtc_writel(rtc, RTC_RTCCR, RTCCR_RTCE);
+#ifdef CONFIG_USE_EXTERNAL_24M_CLOCK
+        jzrtc_writel(rtc, RTC_RTCCR, RTCCR_RTCE | 0x2);
+#else
+        jzrtc_writel(rtc, RTC_RTCCR, RTCCR_RTCE );
+#endif
 		jzrtc_writel(rtc, RTC_HSPR, cfc);
 	}
 

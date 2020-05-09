@@ -363,8 +363,9 @@ static int jz_spi_dma_txrx(struct spi_device *spi, struct spi_transfer *t)
 			printk("The spi transfer wait timeout\n");
 			goto err_txdesc;
 		}
-
+		if(t->cs_change){
 		finish_transmit(hw);
+		}
 		flush_rxfifo(hw);
 		clear_errors(hw);
 
@@ -718,8 +719,8 @@ static int jz_spi_pio_txrx(struct spi_device *spi, struct spi_transfer *t)
 
 	/* wait the interrupt finish the transfer( one spi_transfer be sent ) */
 	wait_for_completion_interruptible(&hw->done);
-
-	finish_transmit(hw);
+	if (t->cs_change)
+		finish_transmit(hw);
 	clear_errors(hw);
 
 	if (hw->rlen != t->len) {
@@ -900,6 +901,7 @@ static int jz_spi_setup(struct spi_device *spi)
 {
 	struct jz_spi *hw = spi_master_get_devdata(spi->master);
 	unsigned long flags;
+	unsigned int frmhl = 0;
 
 	spin_lock_irqsave(&hw->lock, flags);
 	if (hw->state & SUSPND) {
@@ -919,8 +921,16 @@ static int jz_spi_setup(struct spi_device *spi)
 
 	if (spi->chip_select == 0) {
 		select_ce(hw);
+		frmhl = spi_readl(hw, SSI_CR1);
+		frmhl &= ~(1<<30);
+		frmhl |= (spi->mode & SPI_CS_HIGH ? 1 : 0) << 30;
+		spi_writel(hw, SSI_CR1, frmhl);
 	} else if (spi->chip_select == 1) {
 		select_ce2(hw);
+		frmhl = spi_readl(hw, SSI_CR1);
+		frmhl &= ~(1<<31);
+		frmhl |= (spi->mode & SPI_CS_HIGH ? 1 : 0) << 31;
+		spi_writel(hw, SSI_CR1, frmhl);
 	} else
 		return -EINVAL;
 
@@ -996,6 +1006,7 @@ static int jz_spi_txrx(struct spi_device * spi, struct spi_transfer *t)
 	ret = hw->txrx_bufs(spi, t);
 
 	spin_lock_irqsave(&hw->lock, flags);
+
 	hw->state &= ~SPIBUSY;
 	spin_unlock_irqrestore(&hw->lock, flags);
 	return ret;
@@ -1059,9 +1070,11 @@ static int __init jz_spi_probe(struct platform_device *pdev)
 	struct resource *res;
 	dma_cap_mask_t mask;
 	int err = 0;
-	int num_cs_got = 0;
+	//int num_cs_got = 0;
 	char clkname[16];
-	int i;
+	//int i;
+
+
 
 #ifdef CONFIG_JZ_SPI_BOARD_INFO_REGISTER
 	struct spi_board_info *bi;
@@ -1251,24 +1264,20 @@ static int __init jz_spi_probe(struct platform_device *pdev)
 
 	/* setup chipselect */
 	hw->set_cs = &jz_spi_cs;
-
 	/* SSI controller initializations for SPI */
 	jz_spi_init_setup(hw);
-
 	/* register our spi controller */
 	err = spi_bitbang_start(&hw->bitbang);
 	if (err) {
 		dev_err(&pdev->dev, "Failed to register SPI master ERR_NO:%d\n",err);
 		goto err_register;
 	}
-
 #ifdef CONFIG_JZ_SPI_BOARD_INFO_REGISTER
 	/* register all the devices associated */
 	bi = &hw->pdata->board_info[0];
 	if(bi){
 		for (i = 0; i < hw->pdata->board_size; i++, bi++) {
 			dev_info(hw->dev, "registering %s\n", bi->modalias);
-
 			bi->controller_data = hw;
 			spi_new_device(master, bi);
 		}
@@ -1320,7 +1329,7 @@ err_nomem:
 static int __exit jz_spi_remove(struct platform_device *dev)
 {
 	struct jz_spi *hw = platform_get_drvdata(dev);
-	int i;
+	//int i;
 
 	spi_master_put(hw->master);
 	spi_bitbang_stop(&hw->bitbang);

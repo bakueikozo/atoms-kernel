@@ -315,6 +315,11 @@ void dwc2_host_mode_init(struct dwc2 *dwc) {
 	/* High speed PHY running at full speed or high speed */
 	hcfg.d32 = dwc_readl(&host_if->host_global_regs->hcfg);
 	hcfg.b.fslspclksel = DWC_HCFG_30_60_MHZ;
+#ifdef CONFIG_USB_DWC2_FULLSPEED_HOST
+	hcfg.b.fslssupp = 1;
+#else
+	hcfg.b.fslssupp = 0;
+#endif
 	hcfg.b.descdma = 1;
 	hcfg.b.perschedena = 1;
 	hcfg.b.frlisten = 3;  /* 64 entries */
@@ -1080,7 +1085,8 @@ static int dwc2_isoc_qh_ptr_pool_init(struct dwc2 *dwc) {
 }
 
 static struct dwc2_isoc_qh_ptr *
-dwc2_isoc_qh_ptr_alloc(struct dwc2 *dwc, struct dwc2_qh *qh, struct dwc2_frame *dwc_frm) {
+dwc2_isoc_qh_ptr_alloc(struct dwc2 *dwc, struct dwc2_qh *qh, struct dwc2_frame *dwc_frm, unsigned char  uframe_index)
+{
 	struct dwc2_isoc_qh_ptr *qh_ptr = NULL;
 
 	if (!list_empty(&dwc->isoc_qh_ptr_list)) {
@@ -1097,6 +1103,8 @@ dwc2_isoc_qh_ptr_alloc(struct dwc2 *dwc, struct dwc2_qh *qh, struct dwc2_frame *
 		return NULL;
 
 	qh_ptr->qh = qh;
+	qh_ptr->uframe_index = uframe_index;
+
 	list_add(&qh_ptr->frm_list, &dwc_frm->isoc_qh_list);
 	list_add(&qh_ptr->qh_list, &qh->isoc_qh_ptr_list);
 
@@ -1513,7 +1521,7 @@ static unsigned short dwc2_periodic_usecs(struct dwc2 *dwc,
 	struct dwc2_isoc_qh_ptr *isoc_qh;
 
 	list_for_each_entry(isoc_qh, &dwc_frm->isoc_qh_list, frm_list) {
-		if (isoc_qh->qh->smask & (1 << uframe))
+		if ((isoc_qh->qh->smask & (1 << uframe))&&(isoc_qh->uframe_index == uframe))
 			bandwidth += isoc_qh->qh->usecs;
 	}
 
@@ -1952,15 +1960,21 @@ static void dwc2_start_isoc_channel(struct dwc2 *dwc, struct dwc2_channel *chann
 		MAX_DMA_DESC_NUM_HS_ISOC * sizeof(dwc_otg_host_dma_desc_t));
 
 	hctsiz.d32 = 0;
-	hctsiz.b_ddma.ntd = MAX_DMA_DESC_NUM_HS_ISOC - 1;
+	if (dwc->mode == DWC2_HC_EHCI_MODE)
+		hctsiz.b_ddma.ntd = MAX_DMA_DESC_NUM_HS_ISOC - 1;
+	else
+		hctsiz.b_ddma.ntd = MAX_FRLIST_EN_NUM - 1;
 	dwc_writel(hctsiz.d32, &hc_regs->hctsiz);
 
 	dwc2_dispatch_channel(dwc, channel, qh);
 
 	/* reset hcdma */
 	dwc_writel(channel->hw_desc_list, &hc_regs->hcdma);
-	channel->remain_slots = MAX_DMA_DESC_NUM_HS_ISOC;
 
+	if (dwc->mode == DWC2_HC_EHCI_MODE)
+		channel->remain_slots = MAX_DMA_DESC_NUM_HS_ISOC;
+	else
+		channel->remain_slots = MAX_FRLIST_EN_NUM;
 	dwc_writel(0, &hc_regs->hcsplt);
 
 	/* Enable channel interrupts required for this transfer. */
@@ -1977,7 +1991,7 @@ static void dwc2_start_isoc_channel(struct dwc2 *dwc, struct dwc2_channel *chann
 	dwc_writel(haintmsk.d32, &host_if->host_global_regs->haintmsk);
 
 	hcchar.d32 = qh->hcchar.d32;
-	hcchar.b.multicnt = 3;
+	hcchar.b.multicnt = qh->hb_mult;
 	hcchar.b.epdir = is_in;
 	hcchar.b.chen = 1;
 	hcchar.b.chdis = 0;
@@ -1993,6 +2007,7 @@ static int dwc2_isoc_qh_schedule(struct dwc2 *dwc, struct dwc2_qh *qh) {
 	struct dwc2_frame *dwc_frm;
 	unsigned short frame;
 	unsigned short full_frame;
+	unsigned char  uframe_index;
 
 	chan = dwc2_request_isoc_chan(dwc, qh);
 	if (!chan)
@@ -2007,15 +2022,23 @@ static int dwc2_isoc_qh_schedule(struct dwc2 *dwc, struct dwc2_qh *qh) {
 		return retval;
 
 	frame = qh->start_frame;
+
+	uframe_index = qh->start_frame;
+
+
 	do {
 		full_frame = dwc_full_frame_num(dwc, frame);
 		if (full_frame >= MAX_FRLIST_EN_NUM)
 			break;
 
 		dwc_frm = dwc->frame_list + full_frame;
-		dwc2_isoc_qh_ptr_alloc(dwc, qh, dwc_frm);
+		dwc2_isoc_qh_ptr_alloc(dwc, qh, dwc_frm, uframe_index);
 
 		frame = dwc_frame_num_inc(dwc, frame, qh->period);
+
+		uframe_index  += qh->period;
+		uframe_index  = uframe_index%8;
+
 	} while (1);
 
 
@@ -2041,13 +2064,12 @@ static int dwc2_isoc_qh_chan_idle(struct dwc2 *dwc, struct dwc2_qh *qh) {
 			return 1;
 	}
 
+#if 0
 	/* the first urb is scheduled, but this not always means that the channel is not idle */
-
 	curr_frame = dwc2_hc_get_frame_number(dwc);
-	if (dwc_frame_num_gt(dwc, curr_frame, qh->last_frame)) {
+	if (dwc_frame_num_gt(dwc, curr_frame, qh->last_frame))
 		return 1;
-	}
-
+#endif
 	return 0;
 }
 
@@ -2085,14 +2107,16 @@ static int dwc2_isoc_schedule_urb(struct dwc2 *dwc, struct dwc2_urb_priv *urb_pr
 		curr_frame = dwc_frame_num_inc(dwc, curr_frame, DWC2_ISOC_SLOP_UHCI);
 
 	if (dwc2_isoc_qh_chan_idle(dwc, qh)) {
-		/* schedule based on NOW */
+		printk(KERN_DEBUG"dwc2 start isco\n");
+		/* schedule based on NOW long time no transfer or first time*/
 		start_frame = curr_frame + ((qh->start_frame - curr_frame) & (qh->period - 1));
 	} else {
-		if (dwc_frame_num_lt(dwc, curr_frame, qh->last_frame)) {
+		if (dwc_frame_num_le(dwc, curr_frame, qh->last_frame)) {
 			/* schedule based on the last frame */
 			start_frame = dwc_frame_num_inc(dwc, qh->last_frame, qh->period);
 		} else {
-			/* schedule based on now */
+			/* schedule based on now underrun happen*/
+			printk(KERN_DEBUG"dwc2 usb iso underrun occur!!!\n");
 			start_frame = curr_frame + ((qh->start_frame - curr_frame) & (qh->period - 1));
 			total_slots += (start_frame - qh->last_frame) & mod;
 		}
@@ -2343,8 +2367,6 @@ static void dwc2_disable_channel(struct dwc2 *dwc, struct dwc2_channel *chan,
 
 	timeout = wait_event_timeout(chan->disable_wq, (chan->disable_stage == 2), HZ);
 	WARN((timeout == 0), "wait channel%d disable timeout!\n", chan->number);
-	if(timeout == 0)
-		printk("wait channel%d disable timeout!\n", chan->number);
 
 	spin_lock_irqsave(&dwc->lock, flags);
 	chan->waiting = 0;
@@ -2958,8 +2980,8 @@ static void dwc2_hcd_handle_isoc_hc_intr(struct dwc2 *dwc, struct dwc2_channel *
 			if (unlikely(hcint.b.xfercomp && (handled_desc_count == 0))) {
 				struct dwc2_urb_priv	*m_urb_priv;
 
-				printk(KERN_DEBUG "hcint = 0x%08x handled_desc_count = %d list=%d done=%d break_pos=%d\n",
-					hcint.d32, handled_desc_count, !list_empty(&qh->urb_list), done, break_pos);
+				printk(KERN_DEBUG "hcint = 0x%08x handled_desc_count = %d list=%d done=%d \n",
+					hcint.d32, handled_desc_count, !list_empty(&qh->urb_list), done);
 
 				if (dma_desc) {
 					printk(KERN_DEBUG "dma_desc status: a=%u sts=%u ioc=%u n_bytes=%u qh->mps=%u\n",
@@ -2996,6 +3018,7 @@ static void dwc2_hcd_handle_isoc_hc_intr(struct dwc2 *dwc, struct dwc2_channel *
 	}
 
 	if (hcint.b.chhltd) {
+		printk(KERN_DEBUG"======>%s: chhltd ERROR!!!\n", __func__);
 		/* reset scheduled urbs */
 		while (!list_empty(&qh->urb_list)) {
 			urb_priv = list_first_entry(&qh->urb_list, struct dwc2_urb_priv, list);

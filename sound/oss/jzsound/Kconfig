@@ -57,7 +57,7 @@ if JZ_INTERNAL_CODEC_V12
 
 	config T10_INTERNAL_CODEC
 	bool "t10 internal codec"
-	depends on SOC_T10 || SOC_T20
+	depends on SOC_T10 || SOC_T20 || SOC_T30 || SOC_T21 || SOC_T31
 	help
 		Say "Y" to enable t10 internal codec.
 
@@ -91,6 +91,10 @@ if JZ_EXTERNAL_CODEC_V12
 	help
 		Say "Y" to enable ak4951 codec
 endif
+	config JZ_TS_DMIC
+	bool "jz soc t31 dmic enable"
+	help
+		Say "Y" to choose soc t31 dmic enable
 
 endif #SOUND_I2S_JZ47XX
 #******************************************************

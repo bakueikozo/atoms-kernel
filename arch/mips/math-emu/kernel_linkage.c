@@ -84,7 +84,7 @@ void fpu_emulator_init_fpu(void)
  * with appropriate macros from uaccess.h
  */
 
-inline int fpu_emulator_save_context(struct sigcontext __user *sc)
+int fpu_emulator_save_context(struct sigcontext __user *sc)
 {
 	int i;
 	int err = 0;
@@ -98,7 +98,7 @@ inline int fpu_emulator_save_context(struct sigcontext __user *sc)
 	return err;
 }
 
-inline int fpu_emulator_restore_context(struct sigcontext __user *sc)
+int fpu_emulator_restore_context(struct sigcontext __user *sc)
 {
 	int i;
 	int err = 0;

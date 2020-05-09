@@ -43,6 +43,10 @@ extern struct jzmmc_platform_data tf_pdata;
 extern struct jzmmc_platform_data sdio_pdata;
 #endif
 
+#ifdef CONFIG_JZ_TS_DMIC
+extern struct platform_device mic_device ;
+#endif
+
 #ifdef CONFIG_JZ_EPD_V12
 extern struct platform_device jz_epd_device;
 extern struct jz_epd_platform_data jz_epd_pdata;

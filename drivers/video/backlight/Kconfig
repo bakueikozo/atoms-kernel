@@ -168,6 +168,25 @@ config AUO_X163_ROTATION_180
 	default n
 	help
 	  If your board is needed rotation 180, select this option.
+
+choice
+        prompt "lcd type"
+        depends on SOC_T30
+        default T30_FPGA_SLCD_TRULY_240_240
+
+config T30_FPGA_SLCD_TRULY_240_240
+        bool "Truly 240*240 8bit SLCD"
+
+config T30_FPGA_SLCD_KFM701A21
+        bool "KFM701A21 400*240 16 bit SLCD"
+
+config T30_FPGA_TFT_BM8766
+        bool "BM8766 800*480 18 bit TFT"
+
+config T30_FPGA_SLCD_SPI_BYD9158B
+        bool "BYD9158B 128*160 SPI 3 or 4 bit SLCD"
+
+endchoice
 endif # LCD_CLASS_DEVICE
 
 #

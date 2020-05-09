@@ -12,7 +12,7 @@
 #include <linux/module.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
-
+#define DWC_EP_PERIODIC_INT 1
 #include <soc/base.h>
 #include <linux/jz_dwc.h>
 
@@ -26,7 +26,7 @@ int dwc2_gadget_debug_en = 0;
 module_param(dwc2_gadget_debug_en, int, 0644);
 
 #define DWC2_GADGET_DEBUG_MSG(msg...)				\
-        do {							\
+	do {							\
 		if (unlikely(dwc2_gadget_debug_en)) {		\
 			dwc2_printk("gadget", msg);		\
 		}						\
@@ -208,7 +208,7 @@ void dwc2_enable_device_interrupts(struct dwc2 *dwc)
 	intr_mask.b.outepintr	    = 1;
 	intr_mask.b.erlysuspend	    = 1;
 	//intr_mask.b.incomplisoout = 1;
-	intr_mask.b.incomplisoin    = 1;
+	intr_mask.b.incomplisoin    = 0;
 
 	dwc_writel(intr_mask.d32, &global_regs->gintmsk);
 }
@@ -234,7 +234,7 @@ void dwc2_device_mode_init(struct dwc2 *dwc) {
 	}
 
 	dwc->setup_prepared = 0;
-        dwc->last_ep0out_normal = 0;
+	dwc->last_ep0out_normal = 0;
 
 	/*
 	 * DCFG settings
@@ -247,10 +247,13 @@ void dwc2_device_mode_init(struct dwc2 *dwc) {
 	 * 2'b11: Full speed (USB 1.1 FS transceiver clock is 48 MHz)
 	 */
 	dcfg.d32 = dwc_readl(&dev_if->dev_global_regs->dcfg);
+#ifdef CONFIG_USB_DWC2_FULLSPEED_DEVICE
+	dcfg.b.devspd = 1;
+#else
 	dcfg.b.devspd = 0;
+#endif
 	dcfg.b.descdma = (dwc->dma_desc_enable) ? 1 : 0;
 	dcfg.b.perfrint = DWC_DCFG_FRAME_INTERVAL_80;
-
 	/* Enable Device OUT NAK in case of DDMA mode*/
 	//dcfg.b.endevoutnak = 1;
 	dwc_writel(dcfg.d32, &dev_if->dev_global_regs->dcfg);
@@ -269,6 +272,15 @@ void dwc2_device_mode_init(struct dwc2 *dwc) {
 	dwc_writel(0, &dev_if->dev_global_regs->doepmsk);
 	dwc_writel(0xFFFFFFFF, &dev_if->dev_global_regs->daint);
 	dwc_writel(0, &dev_if->dev_global_regs->daintmsk);
+
+#ifdef DWC_EP_PERIODIC_INT
+	{
+		dctl_data_t		dctl;
+		dctl.d32 = dwc_readl(&dev_if->dev_global_regs->dctl);
+		dctl.b.ifrmnum = 1;
+		dwc_writel(dctl.d32, &dev_if->dev_global_regs->dctl);
+	}
+#endif
 
 	dwc2_enable_device_interrupts(dwc);
 }
@@ -293,7 +305,8 @@ void dwc2_gadget_handle_session_end(struct dwc2 *dwc) {
 			}
 		}
 
-		dwc2_flush_rx_fifo(dwc);
+		if (dwc2_is_device_mode(dwc) && dwc->lx_state != DWC_OTG_L3)
+			dwc2_flush_rx_fifo(dwc);
 
 		dwc->ep0state = EP0_DISCONNECTED;
 		dwc->delayed_status = false;
@@ -366,11 +379,10 @@ static void dwc2_gadget_handle_usb_reset_intr(struct dwc2 *dwc) {
 	if (dwc->setup_prepared == 0) {
 		dwc2_ep0_out_start(dwc);
 	}
-
 	dwc2_wait_1st_ctrl_request(dwc);
 
 	if (likely(!first_reset)) {
-		//dwc2_gadget_handle_session_end(dwc);			//cli ????
+		dwc2_gadget_handle_session_end(dwc);
 	} else
 		first_reset = 0;
 
@@ -384,11 +396,11 @@ static void dwc2_gadget_handle_usb_reset_intr(struct dwc2 *dwc) {
 	__dwc2_gadget_ep_disable(dwc->eps[dwc->dev_if.num_out_eps], 1);
 
 	/* Set NAK for all OUT EPs */
-        for (i = 0; i <= dev_if->num_out_eps; i++) {
+	for (i = 0; i <= dev_if->num_out_eps; i++) {
 		doepctl.d32 = dwc_readl(&dev_if->out_ep_regs[i]->doepctl);
 		doepctl.b.snak = 1;
 		dwc_writel(doepctl.d32, &dev_if->out_ep_regs[i]->doepctl);
-        }
+	}
 
 	daintmsk.d32 = 0;
 	daintmsk.b.inep0 = 1;
@@ -445,6 +457,13 @@ static void dwc2_gadget_ep_activate(struct dwc2_ep *dep) {
 	}
 
 	depctl.d32 = dwc_readl(depctl_addr);
+
+	if (dep->type == USB_ENDPOINT_XFER_ISOC && !dep->is_in) {
+		doepmsk_data_t	doepmsk = { .d32 = 0 };
+		doepmsk.d32 = dwc_readl(&dev_if->dev_global_regs->doepmsk);
+		doepmsk.b.outtknepdis = 1;
+		dwc_writel(doepmsk.d32, &dev_if->dev_global_regs->doepmsk);
+	}
 
 	if ( (!depctl.b.usbactep) || (depctl.b.mps != dep->maxp) ) {
 		depctl.b.mps = dep->maxp;
@@ -524,7 +543,7 @@ static void dwc2_gadget_ep_deactivate(struct dwc2_ep *dep) {
 }
 
 static int __dwc2_gadget_ep_enable(struct dwc2_ep *dep,
-				const struct usb_endpoint_descriptor *desc);
+		const struct usb_endpoint_descriptor *desc);
 
 static int dwc2_gadget_handle_enum_done_intr(struct dwc2 *dwc)
 {
@@ -542,18 +561,21 @@ static int dwc2_gadget_handle_enum_done_intr(struct dwc2 *dwc)
 	case DWC_DSTS_ENUMSPD_HS_PHY_30MHZ_OR_60MHZ:
 		dwc2_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(64);
 		dwc->gadget.ep0->maxpacket = 64;
+		dwc->gadget.ep0->maxpacket_limit = 64;
 		dwc->gadget.speed = USB_SPEED_HIGH;
 		break;
 	case DWC_DSTS_ENUMSPD_FS_PHY_30MHZ_OR_60MHZ:
 	case DWC_DSTS_ENUMSPD_FS_PHY_48MHZ:
 		dwc2_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(64);
 		dwc->gadget.ep0->maxpacket = 64;
+		dwc->gadget.ep0->maxpacket_limit = 64;
 		dwc->gadget.speed = USB_SPEED_FULL;
 		break;
 
 	case DWC_DSTS_ENUMSPD_LS_PHY_6MHZ:
 		dwc2_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(8);
 		dwc->gadget.ep0->maxpacket = 8;
+		dwc->gadget.ep0->maxpacket_limit = 8;
 		dwc->gadget.speed = USB_SPEED_LOW;
 		break;
 	}
@@ -628,7 +650,7 @@ static void dwc2_gadget_clear_stall(struct dwc2_ep *dep) {
 	 * data toggle being reinitialized to DATA0.
 	 */
 	if (dep->type == USB_ENDPOINT_XFER_INT ||
-		dep->type == USB_ENDPOINT_XFER_BULK) {
+			dep->type == USB_ENDPOINT_XFER_BULK) {
 		depctl.b.setd0pid = 1;	/* DATA0 */
 	}
 
@@ -645,7 +667,7 @@ static void dwc2_gadget_set_global_out_nak(struct dwc2 *dwc) {
 	dctl_data_t		 dctl;
 	gintmsk_data_t		 gintsts;
 	gintmsk_data_t		 gintmsk;
-	int			 timeout = 10000;
+	int			 timeout = 100000;
 
 	/* unmask OUTNakEff interrupt */
 	gintmsk.d32 = dwc_readl(&dwc->core_global_regs->gintmsk);
@@ -662,7 +684,7 @@ static void dwc2_gadget_set_global_out_nak(struct dwc2 *dwc) {
 	 */
 	do
 	{
-		udelay(10);
+		udelay(1);
 		gintsts.d32 = dwc_readl(&dwc->core_global_regs->gintsts);
 		timeout --;
 
@@ -697,7 +719,7 @@ static void __dwc2_gadget_disable_out_endpoint(struct dwc2 *dwc, int epnum, int 
 	struct dwc2_dev_if	*dev_if	 = &dwc->dev_if;
 	depctl_data_t		 depctl;
 	doepint_data_t		 doepint = {.d32 = 0};
-	int			 timeout = 10000;
+	int			 timeout = 100000;
 
 	/*
 	 * The Databook said that the application cannot disable OUT endpoint 0
@@ -730,7 +752,7 @@ static void __dwc2_gadget_disable_out_endpoint(struct dwc2 *dwc, int epnum, int 
 
 	do
 	{
-		udelay(10);
+		udelay(1);
 		doepint.d32 = dwc_readl(&dev_if->out_ep_regs[epnum]->doepint);
 		timeout --;
 
@@ -773,13 +795,13 @@ static void dwc2_gadget_stop_out_transfer(struct dwc2_ep *dep) {
 	depctl_data_t		 depctl;
 	int			 i	       = 0;
 
-	dev_warn(dwc->dev, "%s: stop OUT transfer\n", dep->name);
+	//	dev_warn(dwc->dev, "%s: stop OUT transfer\n", dep->name);
 
 	dwc2_gadget_set_global_out_nak(dwc);
 	/* after set_global_out_nak, there is no data left in the RxFIFO */
 
 	/* Enable all OUT endpoints by setting DOEPCTL.EPEna = 1'b1 */
-	for (i = 0; i < dwc->hwcfgs.hwcfg2.b.num_dev_ep; i++) {
+	for (i = 0; i <= dwc->hwcfgs.hwcfg2.b.num_dev_ep; i++) {
 		depctl.d32 = dwc_readl(&dev_if->out_ep_regs[i]->doepctl);
 		if (!depctl.b.epena) {
 			depctl.b.epena = 1;
@@ -788,7 +810,7 @@ static void dwc2_gadget_stop_out_transfer(struct dwc2_ep *dep) {
 
 	}
 
-	for (i = 0; i < dwc->hwcfgs.hwcfg2.b.num_dev_ep; i++) {
+	for (i = 0; i <= dwc->hwcfgs.hwcfg2.b.num_dev_ep; i++) {
 		__dwc2_gadget_disable_out_endpoint(dwc, i, 0);
 	}
 
@@ -877,7 +899,7 @@ static void dwc2_gadget_set_in_nak(struct dwc2 *dwc, int epnum) {
 	struct dwc2_dev_if	*dev_if	 = &dwc->dev_if;
 	depctl_data_t		 depctl;
 	diepint_data_t		 diepint;
-	int			 timeout = 10000;
+	int			 timeout = 100000;
 
 	depctl.d32 = dwc_readl(&dev_if->in_ep_regs[epnum]->diepctl);
 	if (!depctl.b.epena)
@@ -887,7 +909,7 @@ static void dwc2_gadget_set_in_nak(struct dwc2 *dwc, int epnum) {
 
 	do
 	{
-		udelay(10);
+		udelay(1);
 		diepint.d32 = dwc_readl(&dev_if->in_ep_regs[epnum]->diepint);
 		timeout --;
 		if (timeout == 0) {
@@ -928,7 +950,7 @@ static void __dwc2_gadget_disable_in_ep(struct dwc2 *dwc, int epnum) {
 	struct dwc2_dev_if	*dev_if	 = &dwc->dev_if;
 	depctl_data_t		 depctl;
 	diepint_data_t		 diepint;
-	int			 timeout = 10000;
+	int			 timeout = 100000;
 
 	depctl.d32 = dwc_readl(&dev_if->in_ep_regs[epnum]->diepctl);
 	if (!depctl.b.epena)
@@ -939,7 +961,7 @@ static void __dwc2_gadget_disable_in_ep(struct dwc2 *dwc, int epnum) {
 
 	do
 	{
-		udelay(10);
+		udelay(1);
 		diepint.d32 = dwc_readl(&dev_if->in_ep_regs[epnum]->diepint);
 		timeout --;
 
@@ -1019,11 +1041,14 @@ static int __dwc2_gadget_ep_enable(struct dwc2_ep *dep,
 		dep->desc = desc;
 		dep->type = usb_endpoint_type(desc);
 		dep->maxp = __le16_to_cpu(desc->wMaxPacketSize);
-		if (dep->type == USB_ENDPOINT_XFER_INT) {
+		if (dep->type == USB_ENDPOINT_XFER_INT ||
+				dep->type == USB_ENDPOINT_XFER_ISOC) {
 			dep->mc = dwc2_hb_mult(dep->maxp);
 			dep->maxp = dwc2_max_packet(dep->maxp);
 		} else {
-			dep->mc = DWC_MAX_PKT_CNT;
+			dep->mc = DWC_MAX_TRANSFER_SIZE / dep->maxp;
+			if (dep->mc > DWC_MAX_PKT_CNT)
+				dep->mc = DWC_MAX_PKT_CNT;
 		}
 
 		/* TODO: 2^(bInterval - 1) is the high-speed case, please take care of fs/ls */
@@ -1108,19 +1133,19 @@ static int __dwc2_gadget_ep_disable(struct dwc2_ep *dep, int remove)
 
 	DWC2_GADGET_DEBUG_MSG("disable %s\n", dep->name);
 
-	dwc2_gadget_ep_deactivate(dep);
-
-	if (dep->is_in) {
-		dwc2_gadget_disable_in_endpoint(dep);
+	if (dwc2_is_host_mode(dwc) || dwc->lx_state == DWC_OTG_L3) {
+		DWC2_GADGET_DEBUG_MSG("ep%d%s disabled when host mode or dwc powerdown\n",
+				dep->number, dep->is_in ? "in" : "out");
 	} else {
-		dwc2_gadget_disable_out_endpoint(dep, 0);
-	}
+		dwc2_gadget_ep_deactivate(dep);
 
-	if (dep->number == 0) {
-		/* EP0 requests are queued on OUT EP0 */
-		dwc2_remove_requests(dwc, dwc2_ep0_get_ep0(dwc), remove);
-	} else
-		dwc2_remove_requests(dwc, dep, remove);
+		if (dep->is_in) {
+			dwc2_gadget_disable_in_endpoint(dep);
+		} else {
+			dwc2_gadget_disable_out_endpoint(dep, 0);
+		}
+	}
+	dwc2_remove_requests(dwc, dep, remove);
 
 	snprintf(dep->name, sizeof(dep->name), "ep%d%s",
 		dep->number, dep->is_in ? "in" : "out");
@@ -1130,10 +1155,8 @@ static int __dwc2_gadget_ep_disable(struct dwc2_ep *dep, int remove)
 	dep->maxp = 0;
 	dep->flags = 0;
 
-	if (unlikely( (!dwc->plugin) && jz_otg_phy_is_suspend())) {
-		dwc2_suspend_controller(dwc);
-	}
-
+	if (unlikely(!dwc->plugin && !dwc2_has_ep_enabled(dwc) && !dwc->keep_phy_on))
+		dwc2_turn_off(dwc, true);
 	return 0;
 }
 
@@ -1217,11 +1240,11 @@ void dwc2_gadget_giveback(struct dwc2_ep *dep,
 	if (req->request.status == -EINPROGRESS) {
 //#ifdef CONFIG_ANDROID
 		/*
-					   * cli@ingenic.cn when we use linux File-backed Storage Gadget driver
-					   * its seems that short_not_ok should not be saw here by dwc2 driver
-					   * maybe it a gadget problem but dwc driver is work well,
-					   * because it ignore it so we ignore it for a while
-					   */
+		 * cli@ingenic.cn when we use linux File-backed Storage Gadget driver
+		 * its seems that short_not_ok should not be saw here by dwc2 driver
+		 * maybe it a gadget problem but dwc driver is work well,
+		 * because it ignore it so we ignore it for a while
+		 */
 
 		if (r->short_not_ok && (r->actual < r->length) && (status == 0)) {
 			DWC2_GADGET_DEBUG_MSG("trans complete success but short is not ok! "
@@ -1239,12 +1262,12 @@ void dwc2_gadget_giveback(struct dwc2_ep *dep,
 		req->mapped = 0;
 	}
 
-        if ((unsigned int)(req->request.buf) % 4 &&
-            dep->align_dma_addr && status != 0) {
-                        dma_unmap_single(dwc->dev, dep->align_dma_addr, req->xfersize,
-                                         dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
-                        dep->align_dma_addr = 0;
-        }
+	if ((unsigned int)(req->request.buf) % 4 &&
+			dep->align_dma_addr && status != 0) {
+		dma_unmap_single(dwc->dev, dep->align_dma_addr, req->xfersize,
+				dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+		dep->align_dma_addr = 0;
+	}
 
 	dev_dbg(dwc->dev, "request %p from %s completed %d/%d ===> %d\n",
 		req, real_dep->name, req->request.actual,
@@ -1257,6 +1280,9 @@ void dwc2_gadget_giveback(struct dwc2_ep *dep,
 
 static void dwc2_remove_requests(struct dwc2 *dwc, struct dwc2_ep *dep, int remove) {
 	struct dwc2_request		*req;
+
+	if (dep->number == 0)
+		dep = dwc2_ep0_get_ep0(dwc);
 
 	while (!list_empty(&dep->request_list)) {
 		req = next_request(&dep->request_list);
@@ -1299,39 +1325,19 @@ static void dwc2_gadget_start_in_transfer(struct dwc2_ep *dep) {
 		deptsiz.b.pktcnt = 1;
 		pktcnt = 1;
 	} else {
-		/*
-		 * transfer size = n * mps + sp;
-		 * where:
-		 *    0 <= sp < mps
-		 *
-		 * if sp > 0:
-		 *     pktcnt = n + 1
-		 * else
-		 *     pktcnt = n
-		 *
-		 * if sp == 0: need transfer a zero packet when complete
-		 */
+		int sp;
+		pktcnt = req->trans_count_left / dep->maxp;
+		sp = (req->trans_count_left % dep->maxp);
+		if (sp)
+			pktcnt++;
 
-		int n, sp;
-
-		n = req->trans_count_left / dep->maxp;
-		if (n > dep->mc)
-			n = dep->mc;
-
-		pktcnt = n;
-
-		sp = req->trans_count_left - n * dep->maxp;
-		if ( (sp > 0) && (n == dep->mc)) {
+		if (pktcnt > dep->mc) {
+			pktcnt = dep->mc;
 			sp = 0;
 		}
 
-		if (sp > 0) pktcnt++;
-
-		deptsiz.b.xfersize = n * dep->maxp + sp;
+		deptsiz.b.xfersize = sp ? (pktcnt - 1) * dep->maxp + sp : pktcnt * dep->maxp;
 		deptsiz.b.pktcnt = pktcnt;
-
-		if (dep->type == USB_ENDPOINT_XFER_ISOC)
-			deptsiz.b.mc = deptsiz.b.pktcnt;
 	}
 
 	req->xfersize = deptsiz.b.xfersize;
@@ -1341,30 +1347,27 @@ static void dwc2_gadget_start_in_transfer(struct dwc2_ep *dep) {
 	DWC2_GADGET_DEBUG_MSG("%s: trans req 0x%p, addr = 0x%08x xfersize = %d pktcnt = %d left = %d\n",
 			dep->name, req, req->next_dma_addr, req->xfersize, req->pktcnt, req->trans_count_left);
 
-        if ((unsigned int)(req->request.buf) % 4) {
-                memcpy(dep->align_addr, req->request.buf + req->request.length -
-                       req->trans_count_left, req->xfersize);
-                dep->align_dma_addr = dma_map_single(dwc->dev, dep->align_addr, req->xfersize,
-                                                     dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
-        }
+	if ((unsigned int)(req->request.buf) % 4) {
+		memcpy(dep->align_addr, req->request.buf + req->request.length -
+				req->trans_count_left, req->xfersize);
+		dep->align_dma_addr = dma_map_single(dwc->dev, dep->align_addr, req->xfersize,
+				dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+	}
 
 	/* Write the DMA register */
 	if (dwc->dma_enable) {
 		if (!dwc->dma_desc_enable) {
-			if (dep->type == USB_ENDPOINT_XFER_INT) {
+			if (dep->type == USB_ENDPOINT_XFER_INT ||
+					dep->type == USB_ENDPOINT_XFER_ISOC) {
 				deptsiz.b.mc = pktcnt;
-			} else if (dep->type != USB_ENDPOINT_XFER_ISOC) {
-				deptsiz.b.mc = 1;
 			} else {
-				// ISOC
-				/* FIXME: */
+				deptsiz.b.mc = 1;
 			}
-
 			dwc_writel(deptsiz.d32, &in_regs->dieptsiz);
-                        if ((unsigned int)(req->request.buf) % 4 == 0)
-                                dwc_writel(req->next_dma_addr, &in_regs->diepdma);
-                        else
-                                dwc_writel(dep->align_dma_addr, &in_regs->diepdma);
+			if ((unsigned int)(req->request.buf) % 4 == 0)
+				dwc_writel(req->next_dma_addr, &in_regs->diepdma);
+			else
+				dwc_writel(dep->align_dma_addr, &in_regs->diepdma);
 		} else {
 			/* TODO: Scatter/Gather DMA Mode here */
 		}
@@ -1414,8 +1417,8 @@ static void dwc2_gadget_start_out_transfer(struct dwc2_ep *dep) {
 		 */
 
 		n = req->trans_count_left / dep->maxp;
-		if (n > DWC_MAX_PKT_CNT)
-			n = DWC_MAX_PKT_CNT;
+		if (n > dep->mc)
+			n = dep->mc;
 
 		if (n == 0) n = 1;
 
@@ -1428,20 +1431,20 @@ static void dwc2_gadget_start_out_transfer(struct dwc2_ep *dep) {
 	req->transfering = 1;
 
 	DWC2_GADGET_DEBUG_MSG("%s: trans req 0x%p, addr = 0x%08x xfersize = %d pktcnt = %d left = %d\n",
-		dep->name, req, req->next_dma_addr, req->xfersize, req->pktcnt, req->trans_count_left);
+			dep->name, req, req->next_dma_addr, req->xfersize, req->pktcnt, req->trans_count_left);
 
-        if ((unsigned int)(req->request.buf) % 4) {
-                dep->align_dma_addr = dma_map_single(dwc->dev, dep->align_addr, req->xfersize,
-                                                     dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
-        }
+	if ((unsigned int)(req->request.buf) % 4) {
+		dep->align_dma_addr = dma_map_single(dwc->dev, dep->align_addr, req->xfersize,
+				dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+	}
 
 	if (dwc->dma_enable) {
 		if (!dwc->dma_desc_enable) {
 			dwc_writel(deptsiz.d32, &out_regs->doeptsiz);
-                        if ((unsigned int)(req->request.buf) % 4 == 0)
-                                dwc_writel(req->next_dma_addr, &out_regs->doepdma);
-                        else
-                                dwc_writel(dep->align_dma_addr, &out_regs->doepdma);
+			if ((unsigned int)(req->request.buf) % 4 == 0)
+				dwc_writel(req->next_dma_addr, &out_regs->doepdma);
+			else
+				dwc_writel(dep->align_dma_addr, &out_regs->doepdma);
 		} else {
 			/* TODO: Scatter/Gather DMA Mode here */
 		}
@@ -1508,9 +1511,9 @@ static int __dwc2_gadget_ep_queue(struct dwc2_ep *dep, struct dwc2_request *req)
 	req->next_dma_addr = r->dma;
 	req->zlp_transfered = 0;
 	if (!(unsigned int)(r->buf) % 4)
-            req->mapped = 1;
+		req->mapped = 1;
 	else
-            req->mapped = 0;
+		req->mapped = 0;
 
 	ep_idle = list_empty(&dep->request_list);
 
@@ -1536,6 +1539,9 @@ static int dwc2_gadget_ep_queue(struct usb_ep *ep,
 		request, ep->name, request->length);
 
 	dwc2_spin_lock_irqsave(dwc, flags);
+
+	BUG_ON(dwc2_is_host_mode(dwc) && dwc->lx_state != DWC_OTG_L3);
+
 	if (!dep->desc) {
 		dev_dbg(dwc->dev, "trying to queue request %p to disabled %s\n",
 			request, ep->name);
@@ -1577,6 +1583,9 @@ static int dwc2_gadget_ep_dequeue(struct usb_ep *ep,
 			ret = -EINVAL;
 			goto out;
 		}
+	} else if (unlikely(dwc2_is_host_mode(dwc) || dwc->lx_state == DWC_OTG_L3)) {
+		DWC2_GADGET_DEBUG_MSG("ep%d%s dequeue when host mode or controller powerdown\n",
+				dep->number, dep->is_in ? "in": "out");
 	} else if (r->transfering) {
 		dwc2_gadget_stop_active_transfer(dep);
 		if (dep->is_in) {
@@ -1586,12 +1595,11 @@ static int dwc2_gadget_ep_dequeue(struct usb_ep *ep,
 			dwc2_gadget_recover_out_transfer(dwc, NULL);
 			/* note that recover_out_transfer() will give back this active request*/
 		}
-		dev_warn(dwc->dev, "WARNING: stopped an active request 0x%p on %s\n", r, dep->name);
+		//dev_warn(dwc->dev, "WARNING: stopped an active request 0x%p on %s\n", r, dep->name);
 		goto out;
 	}
 
 	dwc2_gadget_giveback(dep, req, -ECONNRESET);
-
 out:
 	dwc2_spin_unlock_irqrestore(dwc, flags);
 
@@ -1744,17 +1752,8 @@ static int dwc2_gadget_wakeup(struct usb_gadget *g)
 	if (gotgctl.b.bsesvld) {
 		/* Check if suspend state */
 		dsts.d32 = dwc_readl(&(dwc->dev_if.dev_global_regs->dsts));
-		if (dsts.b.suspsts) {
-#ifdef CONFIG_USB_DWC_OTG_LPM
-			if (dwc->lx_state == DWC_OTG_L1) {
-				dwc2_rem_wkup_from_sleep(dwc);
-			} else {
-#endif
-				dwc2_rem_wkup_from_suspend(dwc);
-#ifdef CONFIG_USB_DWC_OTG_LPM
-			}
-#endif
-		}
+		if (dsts.b.suspsts)
+			dwc2_rem_wkup_from_suspend(dwc);
 	} else {
 		// dwc_otg_pcd_initiate_srp(pcd);
 	}
@@ -1786,7 +1785,7 @@ static int dwc2_gadget_pullup(struct usb_gadget *g, int is_on)
 
 	dwc->pullup_on = is_on;
 
-	if (unlikely(!dwc2_clk_is_enabled(dwc)))
+	if (unlikely(dwc->lx_state == DWC_OTG_L3))
 		goto out;
 
 	if (is_on && !dwc->plugin)
@@ -1801,9 +1800,6 @@ static int dwc2_gadget_pullup(struct usb_gadget *g, int is_on)
 			dwc2_start_ep0state_watcher(dwc, DWC2_EP0STATE_WATCH_COUNT);
 			gotgctl.b.bvalidoven = 0;
 			dwc_writel(gotgctl.d32, &dwc->core_global_regs->gotgctl);
-
-			if (dwc->pullup_on)
-				jz_otg_phy_suspend(0);
 		}
 		dctl.d32 = dwc_readl(&dwc->dev_if.dev_global_regs->dctl);
 		dctl.b.sftdiscon = dwc->pullup_on ? 0 : 1;
@@ -1817,7 +1813,6 @@ static int dwc2_gadget_pullup(struct usb_gadget *g, int is_on)
 		if (!dwc->pullup_on) {
 			udelay(300);
 			dwc2_gadget_handle_session_end(dwc);
-
 			gotgctl.b.bvalidoven = 1;
 			gotgctl.b.bvalidovval = 0;
 			dwc_writel(gotgctl.d32, &dwc->core_global_regs->gotgctl);
@@ -1844,7 +1839,7 @@ int dwc2_udc_start(struct usb_gadget *gadget,
 
 	dwc2_spin_lock_irqsave(dwc, flags);
 	dctl.d32 = dwc_readl(&dwc->dev_if.dev_global_regs->dctl);
-	if (unlikely(!dctl.b.sftdiscon && dwc2_clk_is_enabled(dwc) && dwc2_is_device_mode(dwc))) {
+	if (unlikely(!dctl.b.sftdiscon && dwc->lx_state != DWC_OTG_L3 && dwc2_is_device_mode(dwc))) {
 		/* default to 64 */
 		dwc2_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(64);
 
@@ -1913,6 +1908,7 @@ static int __dwc2_gadget_init_endpoints(struct dwc2 *dwc, int is_in) {
 
 		if (epnum == 0) {
 			dep->usb_ep.maxpacket = 64;
+			dep->usb_ep.maxpacket_limit = 64;
 			dep->usb_ep.ops = &dwc2_gadget_ep0_ops;
 			if (!is_in) {
 				dwc->gadget.ep0 = &dep->usb_ep;
@@ -1920,6 +1916,9 @@ static int __dwc2_gadget_init_endpoints(struct dwc2 *dwc, int is_in) {
 			dep->align_addr = NULL;
 		} else {
 			dep->usb_ep.maxpacket = 1024;
+			dep->usb_ep.maxpacket_limit = 1024;
+			if (dep->is_in && epnum >= dwc->dev_if.num_in_eps - DWC_NUMBER_OF_HB_EP)
+				dep->usb_ep.maxpacket_limit |= (0x2 << 11);
 			dep->usb_ep.ops = &dwc2_gadget_ep_ops;
 			list_add_tail(&dep->usb_ep.ep_list,
 					&dwc->gadget.ep_list);
@@ -1927,8 +1926,7 @@ static int __dwc2_gadget_init_endpoints(struct dwc2 *dwc, int is_in) {
 					DWC2_DEP_ALIGN_ALLOC_SIZE *
 					((eps_offset ? 7 : 0) + epnum - 1));
 		}
-        dep->align_dma_addr = 0;
-
+		dep->align_dma_addr = 0;
 		INIT_LIST_HEAD(&dep->request_list);
 		INIT_LIST_HEAD(&dep->garbage_list);
 	}
@@ -2184,10 +2182,10 @@ static void dwc2_gadget_out_ep_xfer_complete(struct dwc2_ep *dep) {
 			u32 low_limit = req->request.dma;
 			u32 up_limit = req->request.dma + ((req->request.length + 0x3) & ~0x3);
 
-                        if ((unsigned int)(req->request.buf) % 4) {
-                                low_limit = dep->align_dma_addr;
-                                up_limit = low_limit + ((req->request.length + 0x3) & ~0x3);
-                        }
+			if ((unsigned int)(req->request.buf) % 4) {
+				low_limit = dep->align_dma_addr;
+				up_limit = low_limit + ((req->request.length + 0x3) & ~0x3);
+			}
 
 			if ( (curr_dma < low_limit) || (up_limit < curr_dma) ) {
 				dev_err(dwc->dev, "OUT_COMPL error: dma address not match, "
@@ -2196,13 +2194,13 @@ static void dwc2_gadget_out_ep_xfer_complete(struct dwc2_ep *dep) {
 				return;
 			}
 
-             if ((unsigned int)(req->request.buf) % 4) {
-                                dma_unmap_single(dwc->dev, dep->align_dma_addr, req->xfersize,
-                                                 dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
-                                memcpy(req->request.buf + req->request.length -
-                                       req->trans_count_left, dep->align_addr, req->xfersize);
-                                dep->align_dma_addr = 0;
-                        }
+			if ((unsigned int)(req->request.buf) % 4) {
+				dma_unmap_single(dwc->dev, dep->align_dma_addr, req->xfersize,
+						dep->is_in ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+				memcpy(req->request.buf + req->request.length -
+						req->trans_count_left, dep->align_addr, req->xfersize);
+				dep->align_dma_addr = 0;
+			}
 
 			deptsiz.d32 = dwc_readl(&out_ep_regs->doeptsiz);
 			trans_count = req->xfersize - deptsiz.b.xfersize;
@@ -2253,12 +2251,17 @@ static void dwc2_out_ep_interrupt(struct dwc2_ep *dep) {
 	u32			 msk;
 
 	msk = dwc_readl(&dev_if->dev_global_regs->doepmsk);
-	doepint.d32 = dwc_readl(&dev_if->out_ep_regs[epnum]->doepint) & msk;
+	doepint.d32 = dwc_readl(&dev_if->out_ep_regs[epnum]->doepint);
 
 	/* Transfer complete */
 	if (doepint.b.xfercompl) {
 		dwc2_gadget_out_ep_xfer_complete(dep);
 		CLEAR_OUT_EP_INTR(epnum, xfercompl);
+#ifdef DWC_EP_PERIODIC_INT
+		if (dwc->dma_desc_enable && dep->type == USB_ENDPOINT_XFER_ISOC &&
+				doepint.b.pktdrpsts)
+			CLEAR_OUT_EP_INTR(epnum, pktdrpsts);
+#endif
 		doepint.b.xfercompl = 0;
 	}
 
@@ -2269,6 +2272,15 @@ static void dwc2_out_ep_interrupt(struct dwc2_ep *dep) {
 		doepint.b.ahberr = 0;
 	}
 
+	if (doepint.b.outtknepdis) {
+		/*restart request*/
+		CLEAR_OUT_EP_INTR(epnum, outtknepdis);
+		if (dep->type == USB_ENDPOINT_XFER_ISOC)
+			dwc2_gadget_start_out_transfer(dep);
+		doepint.b.outtknepdis = 0;
+	}
+
+	doepint.d32 &= msk;
 	if (doepint.d32) {
 		dev_err(dwc->dev, "Unhandled EP%dout interrupt(0x%08x)\n",
 			epnum, doepint.d32);
@@ -2442,21 +2454,22 @@ int dwc2_gadget_init(struct dwc2 *dwc)
 		goto err0;
 	}
 
-	dwc->status_buf_addr = virt_to_phys(&dwc->status_buf);
+	dwc->status_buf = (u16 *)kzalloc(sizeof(u16), GFP_ATOMIC);
+	dwc->status_buf_addr = virt_to_phys(dwc->status_buf);
+	dwc->ep0out_shadow_buf = (u8 *)kzalloc(DWC_EP0_MAXPACKET, GFP_ATOMIC);
 	dwc->ep0out_shadow_uncached = UNCAC_ADDR((void *)dwc->ep0out_shadow_buf);
 	dwc->ep0out_shadow_dma = dma_map_single(dwc->dev,
 						dwc->ep0out_shadow_buf,
 						DWC_EP0_MAXPACKET,
 						DMA_FROM_DEVICE);
-
 	dwc->gadget.name	  = "dwc2-gadget";
 	dwc->gadget.ops		 = &dwc2_gadget_ops;
 	dwc->gadget.max_speed	 = USB_SPEED_HIGH;
 	dwc->gadget.is_otg	 = 1;
 	dwc->gadget.speed	 = USB_SPEED_UNKNOWN;
 	dwc->gadget.state	 = USB_STATE_NOTATTACHED;
-	dwc->gadget.out_epnum	 = 15;		//FIXME
-	dwc->gadget.in_epnum	 = 15;
+	dwc->gadget.out_epnum	 = 0;
+	dwc->gadget.in_epnum	 = 0;
 
 	init_timer(&dwc->delayed_status_watchdog);
 	dwc->delayed_status_watchdog.function = dwc2_delayed_status_watchdog;
@@ -2511,6 +2524,10 @@ void dwc2_gadget_exit(struct dwc2 *dwc)
 			dwc->ctrl_req_virt, dwc->ctrl_req_addr);
 
 	dma_unmap_single(dwc->dev, dwc->ep0out_shadow_dma, DWC_EP0_MAXPACKET, DMA_FROM_DEVICE);
+
+	kfree(dwc->ep0out_shadow_buf);
+
+	kfree(dwc->status_buf);
 }
 
 void dwc2_gadget_plug_change(int plugin)  {
@@ -2521,7 +2538,6 @@ void dwc2_gadget_plug_change(int plugin)  {
 	if (!dwc)
 		return;
 
-
 	dwc2_spin_lock_irqsave(dwc, flags);
 
 	dwc->plugin = !!plugin;
@@ -2529,14 +2545,14 @@ void dwc2_gadget_plug_change(int plugin)  {
 	if (dwc->suspended)
 		goto out;
 
-	if (!plugin && !dwc2_clk_is_enabled(dwc))
+	if (!plugin && dwc->lx_state ==	DWC_OTG_L3)
 		goto out_print;
 
 	if (plugin)
-		dwc2_resume_controller(dwc);
+		dwc2_turn_on(dwc);
 
 	if (!dwc2_is_device_mode(dwc))
-		goto out;
+		goto unplug;
 
 	dctl.d32 = dwc_readl(&dwc->dev_if.dev_global_regs->dctl);
 	if (plugin) {
@@ -2554,35 +2570,19 @@ void dwc2_gadget_plug_change(int plugin)  {
 			dwc2_start_ep0state_watcher(dwc, DWC2_EP0STATE_WATCH_COUNT);
 		}
 	} else {
-		if (!(dctl.b.sftdiscon && jz_otg_phy_is_suspend())) {
-			dctl.b.sftdiscon = 1;
-			dwc_writel(dctl.d32, &dwc->dev_if.dev_global_regs->dctl);
-#if !DWC2_HOST_MODE_ENABLE
-			{
-				gotgctl_data_t gotgctl;
+		dctl.b.sftdiscon = 1;
+		dwc_writel(dctl.d32, &dwc->dev_if.dev_global_regs->dctl);
 
-				gotgctl.d32 = dwc_readl(&dwc->core_global_regs->gotgctl);
-				gotgctl.b.bvalidoven = 1;
-				gotgctl.b.bvalidovval = 0;
-				dwc_writel(gotgctl.d32, &dwc->core_global_regs->gotgctl);
-			}
-#endif
-			/*
-			 * Note: the following commented code is used for testing what will
-			 *       happen if we unplug then quickly re-plug
-			 */
-#if 0
-			DWC_PR(0x004);
-			DWC_PR(0x014);
-			mdelay(1000);
-			DWC_PR(0x004);
-			DWC_PR(0x014);
-
-			dctl.b.sftdiscon = dwc->pullup_on ? 0 : 1;
-			dwc_writel(dctl.d32, &dwc->dev_if.dev_global_regs->dctl);
-#endif
+		if (IS_ENABLED(CONFIG_USB_DWC2_DEVICE_ONLY)){
+			gotgctl_data_t gotgctl;
+			gotgctl.d32 = dwc_readl(&dwc->core_global_regs->gotgctl);
+			gotgctl.b.bvalidoven = 1;
+			gotgctl.b.bvalidovval = 0;
+			dwc_writel(gotgctl.d32, &dwc->core_global_regs->gotgctl);
 		}
-		dwc2_suspend_controller(dwc);
+unplug:
+		if (!dwc->keep_phy_on)
+			dwc2_turn_off(dwc, true);
 	}
 out_print:
 	dev_info(dwc->dev,"enter %s:%d: plugin = %d pullup_on = %d suspend = %d\n",

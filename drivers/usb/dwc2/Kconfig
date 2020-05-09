@@ -31,36 +31,27 @@ config USB_DWC2_HOST_ONLY
 config USB_DWC2_DEVICE_ONLY
 	bool "Device Mode Only"
 	depends on USB_GADGET
-	select USB_OTG
 	help
 	  Say Y Here to enable Device function only
 
 endchoice
 
-config USB_DWC2_DRVVBUS_FUNCTION_PIN
-       bool "Allow use dwc2 drvvbus function pin"
-	depends on (USB_DWC2_HOST_ONLY || USB_DWC2_DUAL_ROLE)
+config BOARD_HAS_NO_DETE_FACILITY
+	bool "Board has no plug detect facility"
 	default n
 	help
-	 Say Y here to use dwc2 drvvbus pin
+		Say Y here if your board has no plug detect facility
 
-config USB_DWC2_ALLOW_WAKEUP
-       bool "Allow wakeup when usb cable plug/unplug"
-       depends on (USB_DWC2_DUAL_ROLE || USB_DWC2_DEVICE_ONLY)
-       default y
-       help
-         Say Y here if you want usb cable plug/unplug to wakeup the system
-
-config BOARD_HAS_NO_DETE_FACILITY
-       bool "Board has no plug detect facility"
-       default n
-       help
-         Say Y here if your board has no plug detect facility
+config CONFIG_DWC2_HOST_OVERCURRENT_DET
+	bool "hcd overcurrent detect (vbus)"
+	default n
+	help
+		Say Y here if your board have vbus input and you want hcd overcurrent detect
 
 config USB_DWC2_DEBUG
 	bool "Enable Debugging(dev_dbg) Messages"
 	help
-	  Say Y here to enable debugging messages on DWC2 Driver.
+		Say Y here to enable debugging messages on DWC2 Driver.
 
 config USB_DWC2_VERBOSE
 	bool "Enable Verbose Debugging(dev_vdbg) Messages"
@@ -91,21 +82,17 @@ config USB_DWC2_HOST_TRACER
 	  Say Y here to enable tracing host operation flow,
 	  you must reserve 192M~256M memory
 
-config USB_DWC2_INPUT_EVDEV
-       bool "Enable host mode device wakeup"
-       depends on (USB_DWC2_DUAL_ROLE || USB_DWC2_HOST_ONLY)
-       help
-         Say Y here to enable host device insert to wakeup screen
+config USB_DWC2_FULLSPEED_DEVICE
+	bool "dwc2 full speed gadget"
+	depends on (USB_DWC2_DUAL_ROLE || USB_DWC2_DEVICE_ONLY)
+	default n
+	help
+		Say Y here to keep the gadget at full speed
 
-config USB_DWC2_SAVING_POWER
-       bool "Disable clock and power off controller when usb cable unplug"
-       depends on USB_DWC2_DEVICE_ONLY || (USB_DWC2_DUAL_ROLE && !USB_DWC2_DRVVBUS_FUNCTION_PIN)
-       default y
-       help
-         Say Y here to disable clock gate when usb cable unplug.
-	 Currently only support Device Mode and OTG Mode , but this does not means
-	 that we do not support Host Mode. Especially when OTG Mode ,
-	 Note : 1, we can not support drvvbus function pin, because , insert otg may bring some jitter
-	 our controler will have an session end interrupt.
-		2, if we don not have detect pin or id pin clock and phy always keep on except suspend
+config USB_DWC2_FULLSPEED_HOST
+	bool "dwc2 full speed host"
+	depends on (USB_DWC2_DUAL_ROLE || USB_DWC2_HOST_ONLY)
+	default n
+	help
+		Say Y here to keep the host at full speed (ohci mode)
 endif

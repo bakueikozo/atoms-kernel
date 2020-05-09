@@ -39,7 +39,7 @@ CH_FREQ_MAP CH_HZ_ID_MAP[]=
 			{169, 5845},
 			{171, 5855},
 			{173, 5865},
-						
+
 			/* HiperLAN2 */
 			{100, 5500},
 			{104, 5520},
@@ -52,21 +52,21 @@ CH_FREQ_MAP CH_HZ_ID_MAP[]=
 			{132, 5660},
 			{136, 5680},
 			{140, 5700},
-						
+
 			/* Japan MMAC */
 			{34, 5170},
 			{38, 5190},
 			{42, 5210},
 			{46, 5230},
-					
+
 			/*  Japan */
 			{184, 4920},
 			{188, 4940},
 			{192, 4960},
 			{196, 4980},
-			
+
 			{208, 5040},	/* Japan, means J08 */
-			{212, 5060},	/* Japan, means J12 */   
+			{212, 5060},	/* Japan, means J12 */
 			{216, 5080},	/* Japan, means J16 */
 };
 
@@ -130,7 +130,7 @@ CH_DESC Country_Region31_ChDesc_2GHZ[] =
 CH_DESC Country_Region32_ChDesc_2GHZ[] =
 {
 	{1, 11, CHANNEL_DEFAULT_PROP},
-	{12, 2, CHANNEL_PASSIVE_SCAN},	
+	{12, 2, CHANNEL_PASSIVE_SCAN},
 	{}
 };
 
@@ -175,7 +175,7 @@ CH_DESC Country_Region1_ChDesc_5GHZ[] =
 CH_DESC Country_Region2_ChDesc_5GHZ[] =
 {
 	{36, 8, CHANNEL_DEFAULT_PROP},
-	{}	
+	{}
 };
 
 CH_DESC Country_Region3_ChDesc_5GHZ[] =
@@ -237,7 +237,7 @@ CH_DESC Country_Region11_ChDesc_5GHZ[] =
 	{36, 8, CHANNEL_DEFAULT_PROP},
 	{100, 6, CHANNEL_DEFAULT_PROP},
 	{149, 4, CHANNEL_DEFAULT_PROP},
-	{}		
+	{}
 };
 
 CH_DESC Country_Region12_ChDesc_5GHZ[] =
@@ -252,7 +252,7 @@ CH_DESC Country_Region13_ChDesc_5GHZ[] =
 	{52, 4, CHANNEL_DEFAULT_PROP},
 	{100, 11, CHANNEL_DEFAULT_PROP},
 	{149, 4, CHANNEL_DEFAULT_PROP},
-	{}	
+	{}
 };
 
 CH_DESC Country_Region14_ChDesc_5GHZ[] =
@@ -261,7 +261,7 @@ CH_DESC Country_Region14_ChDesc_5GHZ[] =
 	{100, 5, CHANNEL_DEFAULT_PROP},
 	{136, 2, CHANNEL_DEFAULT_PROP},
 	{149, 5, CHANNEL_DEFAULT_PROP},
-	{}	
+	{}
 };
 
 CH_DESC Country_Region15_ChDesc_5GHZ[] =
@@ -305,7 +305,7 @@ CH_DESC Country_Region20_ChDesc_5GHZ[] =
 	{36, 8, CHANNEL_DEFAULT_PROP},
 	{100, 7, CHANNEL_DEFAULT_PROP},
 	{149, 4, CHANNEL_DEFAULT_PROP},
-	{}		
+	{}
 };
 
 CH_DESC Country_Region21_ChDesc_5GHZ[] =
@@ -313,7 +313,7 @@ CH_DESC Country_Region21_ChDesc_5GHZ[] =
 	{36, 8, CHANNEL_DEFAULT_PROP},
 	{100, 11, CHANNEL_DEFAULT_PROP},
 	{149, 4, CHANNEL_DEFAULT_PROP},
-	{}		
+	{}
 };
 
 
@@ -423,7 +423,7 @@ CH_DESP Country_DZ_ChDesp[] =
 	{ 1, 13, 20, BOTH, FALSE},  	/*2402~2482MHz, Ch 1~13, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Argentina*/		
+/*Argentina*/
 CH_DESP Country_AR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13, Max BW: 40 */
@@ -433,7 +433,7 @@ CH_DESP Country_AR_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Armenia*/	
+/*Armenia*/
 CH_DESP Country_AM_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -441,7 +441,7 @@ CH_DESP Country_AM_ChDesp[] =
 	{ 52,   4, 18, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Aruba*/	
+/*Aruba*/
 CH_DESP Country_AW_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -450,7 +450,7 @@ CH_DESP Country_AW_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Australia*/	
+/*Australia*/
 CH_DESP Country_AU_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -459,16 +459,16 @@ CH_DESP Country_AU_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Austria*/	
+/*Austria*/
 CH_DESP Country_AT_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Azerbaijan*/	
+/*Azerbaijan*/
 CH_DESP Country_AZ_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -476,7 +476,7 @@ CH_DESP Country_AZ_ChDesp[] =
 	{ 52,   4, 18, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Bahrain*/	
+/*Bahrain*/
 CH_DESP Country_BH_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -485,13 +485,13 @@ CH_DESP Country_BH_ChDesp[] =
 	{ 149,  5, 20, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Bangladesh*/	
+/*Bangladesh*/
 CH_DESP Country_BD_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Barbados*/	
+/*Barbados*/
 CH_DESP Country_BB_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -500,7 +500,7 @@ CH_DESP Country_BB_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Belarus*/	
+/*Belarus*/
 CH_DESP Country_BY_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -509,30 +509,30 @@ CH_DESP Country_BY_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Belgium*/	
+/*Belgium*/
 CH_DESP Country_BE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Belize*/	
+/*Belize*/
 CH_DESP Country_BZ_ChDesp[] =
 {
 	{ 1,   13, 30, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Bolivia*/	
+/*Bolivia*/
 CH_DESP Country_BO_ChDesp[] =
 {
 	{ 1,   13, 30, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Bosnia and Herzegovina*/	
+/*Bosnia and Herzegovina*/
 CH_DESP Country_BA_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -541,7 +541,7 @@ CH_DESP Country_BA_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Brazil*/	
+/*Brazil*/
 CH_DESP Country_BR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -551,7 +551,7 @@ CH_DESP Country_BR_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Brunei Darussalam*/	
+/*Brunei Darussalam*/
 CH_DESP Country_BN_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -560,7 +560,7 @@ CH_DESP Country_BN_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Bulgaria*/	
+/*Bulgaria*/
 CH_DESP Country_BG_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -569,7 +569,7 @@ CH_DESP Country_BG_ChDesp[] =
 	{ 100, 11, 30, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Cambodia*/	
+/*Cambodia*/
 CH_DESP Country_KH_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -578,17 +578,17 @@ CH_DESP Country_KH_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Canada*/	
+/*Canada*/
 CH_DESP Country_CA_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
-	{ 36,   4, 17, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */ 
+	{ 36,   4, 17, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Chile*/	
+/*Chile*/
 CH_DESP Country_CL_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -597,14 +597,14 @@ CH_DESP Country_CL_ChDesp[] =
 	{ 149,  5, 20, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*China*/		
+/*China*/
 CH_DESP Country_CN_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */	
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Colombia*/		
+/*Colombia*/
 CH_DESP Country_CO_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
@@ -613,7 +613,7 @@ CH_DESP Country_CO_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Costa Rica*/		
+/*Costa Rica*/
 CH_DESP Country_CR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -622,7 +622,7 @@ CH_DESP Country_CR_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Croatia*/		
+/*Croatia*/
 CH_DESP Country_HR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -631,16 +631,16 @@ CH_DESP Country_HR_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Cyprus*/		
+/*Cyprus*/
 CH_DESP Country_CY_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */ 
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Czech Republic*/		
+/*Czech Republic*/
 CH_DESP Country_CZ_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2400~2483.5MHz, Ch 1~13,   Max BW: 40 */
@@ -649,7 +649,7 @@ CH_DESP Country_CZ_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5470~5725MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Denmark*/		
+/*Denmark*/
 CH_DESP Country_DK_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -658,7 +658,7 @@ CH_DESP Country_DK_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Dominican Republic*/		
+/*Dominican Republic*/
 CH_DESP Country_DO_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
@@ -667,7 +667,7 @@ CH_DESP Country_DO_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Ecuador*/		
+/*Ecuador*/
 CH_DESP Country_EC_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -676,7 +676,7 @@ CH_DESP Country_EC_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Egypt*/		
+/*Egypt*/
 CH_DESP Country_EG_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -684,7 +684,7 @@ CH_DESP Country_EG_ChDesp[] =
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*El Salvador*/		
+/*El Salvador*/
 CH_DESP Country_SV_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -693,16 +693,16 @@ CH_DESP Country_SV_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Estonia*/		
+/*Estonia*/
 CH_DESP Country_EE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Finland*/		
+/*Finland*/
 CH_DESP Country_FI_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -711,7 +711,7 @@ CH_DESP Country_FI_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*France*/		
+/*France*/
 CH_DESP Country_FR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -720,7 +720,7 @@ CH_DESP Country_FR_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Georgia*/		
+/*Georgia*/
 CH_DESP Country_GE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -728,7 +728,7 @@ CH_DESP Country_GE_ChDesp[] =
 	{ 52,   4, 18, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Germany*/		
+/*Germany*/
 CH_DESP Country_DE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2400~2483.5MHz, Ch 1~13,   Max BW: 40 */
@@ -737,7 +737,7 @@ CH_DESP Country_DE_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5470~5725MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Greece*/		
+/*Greece*/
 CH_DESP Country_GR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -746,7 +746,7 @@ CH_DESP Country_GR_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Greenland*/		
+/*Greenland*/
 CH_DESP Country_GL_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -755,7 +755,7 @@ CH_DESP Country_GL_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Grenada*/		
+/*Grenada*/
 CH_DESP Country_GD_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
@@ -765,7 +765,7 @@ CH_DESP Country_GD_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Guam*/		
+/*Guam*/
 CH_DESP Country_GU_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
@@ -774,7 +774,7 @@ CH_DESP Country_GU_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Guatemala*/		
+/*Guatemala*/
 CH_DESP Country_GT_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
@@ -783,7 +783,7 @@ CH_DESP Country_GT_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Haiti*/		
+/*Haiti*/
 CH_DESP Country_HT_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -792,7 +792,7 @@ CH_DESP Country_HT_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Honduras*/		
+/*Honduras*/
 CH_DESP Country_HN_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -802,7 +802,7 @@ CH_DESP Country_HN_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Hong Kong*/		
+/*Hong Kong*/
 CH_DESP Country_HK_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -812,7 +812,7 @@ CH_DESP Country_HK_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Hungary*/		
+/*Hungary*/
 CH_DESP Country_HU_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,  Max BW: 40 */
@@ -821,7 +821,7 @@ CH_DESP Country_HU_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Iceland*/		
+/*Iceland*/
 CH_DESP Country_IS_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -830,7 +830,7 @@ CH_DESP Country_IS_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*India*/		
+/*India*/
 CH_DESP Country_IN_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -839,20 +839,20 @@ CH_DESP Country_IN_ChDesp[] =
 	{ 149,  5, 20, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Indonesia*/		
+/*Indonesia*/
 CH_DESP Country_ID_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Iran, Islamic Republic of*/		
+/*Iran, Islamic Republic of*/
 CH_DESP Country_IR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */	
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Ireland*/		
+/*Ireland*/
 CH_DESP Country_IE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -861,7 +861,7 @@ CH_DESP Country_IE_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Israel*/		
+/*Israel*/
 CH_DESP Country_IL_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -869,7 +869,7 @@ CH_DESP Country_IL_ChDesp[] =
 	{ 52,   4, 23, IDOR, TRUE}, 	/*5250~5350MHz, Ch 52~64, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Italy*/		
+/*Italy*/
 CH_DESP Country_IT_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -878,7 +878,7 @@ CH_DESP Country_IT_ChDesp[] =
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Jamaica*/		
+/*Jamaica*/
 CH_DESP Country_JM_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -888,38 +888,38 @@ CH_DESP Country_JM_ChDesp[] =
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Japan*/		
+/*Japan*/
 CH_DESP Country_JP_ChDesp[] =
 {
 	{ 1,    14, 20, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 20 */
 		   			/*2457~2482MHz, Ch10~13,  Max BW: 20 */
-		   			/*2474~2494MHz, Ch14,  	  Max BW: 20, No OFDM */		
+		   			/*2474~2494MHz, Ch14,  	  Max BW: 20, No OFDM */
 	{  36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{  52,   4, 20, IDOR, TRUE},	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100,  11, 23, BOTH, TRUE},	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Jordan*/		
+/*Jordan*/
 CH_DESP Country_JO_ChDesp[] =
 {
 	{ 1,  13, 20, BOTH, FALSE}, 	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,  4, 18, BOTH, FALSE}, 	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Kazakhstan*/		
+/*Kazakhstan*/
 CH_DESP Country_KZ_ChDesp[] =
 {
 	{ 1,  13, 20, BOTH, FALSE}, 	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Kenya*/		
+/*Kenya*/
 CH_DESP Country_KE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */	
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Korea, Democratic People's Republic of*/		
+/*Korea, Democratic People's Republic of*/
 CH_DESP Country_KP_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -929,7 +929,7 @@ CH_DESP Country_KP_ChDesp[] =
 	{ 149,  4, 30, BOTH, FALSE},	/*5735~5815MHz, Ch 149~161, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Korea, Republic of*/		
+/*Korea, Republic of*/
 CH_DESP Country_KR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 20 */
@@ -939,7 +939,7 @@ CH_DESP Country_KR_ChDesp[] =
 	{ 149,  4, 30, BOTH, FALSE},	/*5735~5815MHz, Ch 149~161, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Kuwait*/		
+/*Kuwait*/
 CH_DESP Country_KW_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -947,121 +947,121 @@ CH_DESP Country_KW_ChDesp[] =
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Latvia*/		
+/*Latvia*/
 CH_DESP Country_LV_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Lebanon*/		
+/*Lebanon*/
 CH_DESP Country_LB_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */	
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Liechtenstein*/		
+/*Liechtenstein*/
 CH_DESP Country_LI_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */		
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Lithuania*/		
+/*Lithuania*/
 CH_DESP Country_LT_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */		
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Luxembourg*/		
+/*Luxembourg*/
 CH_DESP Country_LU_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */		
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Macao*/		
+/*Macao*/
 CH_DESP Country_MO_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 23, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 23, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */	
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Macedonia, Republic of*/		
+/*Macedonia, Republic of*/
 CH_DESP Country_MK_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Malaysia*/		
+/*Malaysia*/
 CH_DESP Country_MY_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 52,   4, 30, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Malta*/		
+/*Malta*/
 CH_DESP Country_MT_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Mexico*/		
+/*Mexico*/
 CH_DESP Country_MX_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 23, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */		
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Monaco*/		
+/*Monaco*/
 CH_DESP Country_MC_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 18, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
-	{ 52,   4, 18, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */		
+	{ 52,   4, 18, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Morocco*/		
+/*Morocco*/
 CH_DESP Country_MA_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Nepal*/		
+/*Nepal*/
 CH_DESP Country_NP_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */	
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Netherlands*/		
+/*Netherlands*/
 CH_DESP Country_NL_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
 /*Netherlands Antilles*/
@@ -1070,7 +1070,7 @@ CH_DESP Country_AN_ChDesp[] =
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
 /*New Zealand*/
@@ -1079,283 +1079,283 @@ CH_DESP Country_NZ_ChDesp[] =
 	{ 1,   13, 30, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 23, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 20 */
 	{ 52,   4, 23, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */		
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Norway*/	
+/*Norway*/
 CH_DESP Country_NO_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Oman*/		
+/*Oman*/
 CH_DESP Country_OM_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */		
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Pakistan*/		
+/*Pakistan*/
 CH_DESP Country_PK_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */		
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Panama*/		
+/*Panama*/
 CH_DESP Country_PA_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 23, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Papua New Guinea*/		
+/*Papua New Guinea*/
 CH_DESP Country_PG_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 23, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Peru*/		
+/*Peru*/
 CH_DESP Country_PE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Philippines*/		
+/*Philippines*/
 CH_DESP Country_PH_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Poland*/		
+/*Poland*/
 CH_DESP Country_PL_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Portuga*/		
+/*Portuga*/
 CH_DESP Country_PT_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Puerto Rico*/		
+/*Puerto Rico*/
 CH_DESP Country_PR_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 23, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Qatar*/		
+/*Qatar*/
 CH_DESP Country_QA_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */		
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Romania*/		
+/*Romania*/
 CH_DESP Country_RO_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Russian Federation*/		
+/*Russian Federation*/
 CH_DESP Country_RU_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */		
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Saint Barth'elemy*/		
+/*Saint Barth'elemy*/
 CH_DESP Country_BL_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 18, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
-	{ 52,   4, 18, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */			
+	{ 52,   4, 18, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Saudi Arabia*/		
+/*Saudi Arabia*/
 CH_DESP Country_SA_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 23, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 20 */
 	{ 52,   4, 23, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Singapore*/		
+/*Singapore*/
 CH_DESP Country_SG_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 149,  5, 20, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 20, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Slovakia*/		
+/*Slovakia*/
 CH_DESP Country_SK_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Slovenia*/		
+/*Slovenia*/
 CH_DESP Country_SI_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*South Africa*/		
+/*South Africa*/
 CH_DESP Country_ZA_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Spain*/		
+/*Spain*/
 CH_DESP Country_ES_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Sri Lanka*/		
+/*Sri Lanka*/
 CH_DESP Country_LK_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 20 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 20 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Sweden*/		
+/*Sweden*/
 CH_DESP Country_SE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Switzerland*/		
+/*Switzerland*/
 CH_DESP Country_CH_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Syrian Arab Republic*/		
+/*Syrian Arab Republic*/
 CH_DESP Country_SY_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Taiwan*/		
+/*Taiwan*/
 CH_DESP Country_TW_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
 	{ 56,   3, 17, IDOR, TRUE}, 	/*5270~5330MHz, Ch 56~64, Max BW: 40 */
-	{ 149,  4, 30, BOTH, FALSE},	/*5735~5815MHz, Ch 149~161, Max BW: 40 */			
+	{ 149,  4, 30, BOTH, FALSE},	/*5735~5815MHz, Ch 149~161, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Thailand*/		
+/*Thailand*/
 CH_DESP Country_TH_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Trinidad and Tobago*/		
+/*Trinidad and Tobago*/
 CH_DESP Country_TT_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE},    	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Tunisia*/		
+/*Tunisia*/
 CH_DESP Country_TN_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 20 */
-	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */		
+	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Turkey*/		
+/*Swan*/
 CH_DESP Country_TR_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 20 */
-	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */		
+	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 20 */
 	{ 0},               	    	/* end*/
 };
-/*Ukraine*/		
+/*Ukraine*/
 CH_DESP Country_UA_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*United Arab Emirates*/		
+/*United Arab Emirates*/
 CH_DESP Country_AE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*United Kingdom*/		
+/*United Kingdom*/
 CH_DESP Country_GB_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */  
-	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */  
-	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */			
+	{ 36,   4, 20, IDOR, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
+	{ 52,   4, 20, IDOR, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
+	{ 100, 11, 27, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*United States*/		
+/*United States*/
 CH_DESP Country_US_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
@@ -1365,49 +1365,49 @@ CH_DESP Country_US_ChDesp[] =
 	{ 132,  3, 20, BOTH, TRUE}, 	/*5650~5710MHz, Ch 132~140, Max BW: 40 */
 	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
-};		
-/*Uruguay*/		
+};
+/*Uruguay*/
 CH_DESP Country_UY_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
-};		
-/*Uzbekistan*/		
+};
+/*Uzbekistan*/
 CH_DESP Country_UZ_ChDesp[] =
 {
 	{ 1,   11, 27, BOTH, FALSE},	/*2402~2472MHz, Ch 1~11,   Max BW: 40 */
 	{ 36,   4, 17, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
 	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 100, 11, 20, BOTH, TRUE}, 	/*5490~5710MHz, Ch 100~140, Max BW: 40 */
-	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */			
+	{ 149,  5, 30, BOTH, FALSE},	/*5735~5835MHz, Ch 149~165, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Venezuela*/		
+/*Venezuela*/
 CH_DESP Country_VE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
-	{ 149,  4, 23, BOTH, FALSE},	/*5735~5815MHz, Ch 149~161, Max BW: 40 */	
+	{ 149,  4, 23, BOTH, FALSE},	/*5735~5815MHz, Ch 149~161, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Viet Nam*/		
+/*Viet Nam*/
 CH_DESP Country_VN_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 36,   4, 20, BOTH, FALSE},	/*5170~5250MHz, Ch 36~48, Max BW: 40 */
-	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */		
+	{ 52,   4, 20, BOTH, TRUE}, 	/*5250~5330MHz, Ch 52~64, Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Yemen*/		
+/*Yemen*/
 CH_DESP Country_YE_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
 	{ 0},               	    	/* end*/
 };
-/*Zimbabwe*/		
+/*Zimbabwe*/
 CH_DESP Country_ZW_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/*2402~2482MHz, Ch 1~13,   Max BW: 40 */
@@ -1415,22 +1415,22 @@ CH_DESP Country_ZW_ChDesp[] =
 };
 
 /* Group Region */
-/*Europe*/		
+/*Europe*/
 CH_DESP Country_EU_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/* 2.4 G, ch 1~13 */
 	{ 36,   4, 17, BOTH, FALSE},	/* 5G band 1, ch 36~48*/
 	{ 0},               	    	/* end*/
 };
-/*North America*/		
+/*North America*/
 CH_DESP Country_NA_ChDesp[] =
 {
-	{ 1,   11,	27, BOTH, FALSE},	/* 2.4 G, ch 1~11*/  
-	{ 36,   4,	17, IDOR, FALSE},	/* 5G band 1, ch 36~48*/  
+	{ 1,   11,	27, BOTH, FALSE},	/* 2.4 G, ch 1~11*/
+	{ 36,   4,	17, IDOR, FALSE},	/* 5G band 1, ch 36~48*/
 	{ 149,	5, 30, BOTH, FALSE},	/* 5G band 4, ch 149~165*/
 	{ 0},               	    	/* end*/
 };
-/*World Wide*/		
+/*World Wide*/
 CH_DESP Country_WO_ChDesp[] =
 {
 	{ 1,   13, 20, BOTH, FALSE},	/* 2.4 G, ch 1~13*/
@@ -1496,72 +1496,72 @@ CH_REGION ChRegion[] =
 	{"IL", CE, Country_IL_ChDesp}, /* Israel */
 	{"IT", CE, Country_IT_ChDesp}, /* Italy */
 	{"JM", CE, Country_JM_ChDesp}, /* Jamaica */
-	{"JP", JAP,Country_JP_ChDesp}, /* Japan */		
-	{"JO", CE, Country_JO_ChDesp}, /* Jordan */	
-	{"KZ", CE, Country_KZ_ChDesp}, /* Kazakhstan */			
-	{"KE", CE, Country_KE_ChDesp}, /* Kenya */	
+	{"JP", JAP,Country_JP_ChDesp}, /* Japan */
+	{"JO", CE, Country_JO_ChDesp}, /* Jordan */
+	{"KZ", CE, Country_KZ_ChDesp}, /* Kazakhstan */
+	{"KE", CE, Country_KE_ChDesp}, /* Kenya */
 	{"KP", CE, Country_KP_ChDesp}, /* Korea, Democratic People's Republic of */
-	{"KR", CE, Country_KR_ChDesp}, /* Korea, Republic of */			
-	{"KW", CE, Country_KW_ChDesp}, /* Kuwait */			
-	{"LV", CE, Country_LV_ChDesp}, /* Latvia */			
-	{"LB", CE, Country_LB_ChDesp}, /* Lebanon */			
-	{"LI", CE, Country_LI_ChDesp}, /* Liechtenstein */			
-	{"LT", CE, Country_LT_ChDesp}, /* Lithuania */			
-	{"LU", CE, Country_LU_ChDesp}, /* Luxembourg */			
-	{"MO", CE, Country_MO_ChDesp}, /* Macao */			
-	{"MK", CE, Country_MK_ChDesp}, /* Macedonia, Republic of */			
-	{"MY", CE, Country_MY_ChDesp}, /* Malaysia */			
-	{"MT", CE, Country_MT_ChDesp}, /* Malta */			
-	{"MX", CE, Country_MX_ChDesp}, /* Mexico */			
-	{"MC", CE, Country_MC_ChDesp}, /* Monaco */			
-	{"MA", CE, Country_MA_ChDesp}, /* Morocco */			
-	{"NP", CE, Country_NP_ChDesp}, /* Nepal */			
-	{"NL", CE, Country_NL_ChDesp}, /* Netherlands */			
-	{"AN", CE, Country_AN_ChDesp}, /* Netherlands Antilles */			
-	{"NZ", CE, Country_NZ_ChDesp}, /* New Zealand */			
-	{"NO", CE, Country_NO_ChDesp}, /* Norway */			
-	{"OM", CE, Country_OM_ChDesp}, /* Oman */		
-	{"PK", CE, Country_PK_ChDesp}, /* Pakistan */		
-	{"PA", CE, Country_PA_ChDesp}, /* Panama */	
-	{"PG", CE, Country_PG_ChDesp}, /* Papua New Guinea */	
-	{"PE", CE, Country_PE_ChDesp}, /* Peru */			
-	{"PH", CE, Country_PH_ChDesp}, /* Philippines */		
-	{"PL", CE, Country_PL_ChDesp}, /* Poland */			
-	{"PT", CE, Country_PT_ChDesp}, /* Portuga l*/			
-	{"PR", CE, Country_PR_ChDesp}, /* Puerto Rico */			
-	{"QA", CE, Country_QA_ChDesp}, /* Qatar */			
-	{"RO", CE, Country_RO_ChDesp}, /* Romania */			
-	{"RU", CE, Country_RU_ChDesp}, /* Russian Federation */			
-	{"BL", CE, Country_BL_ChDesp}, /* Saint Barth'elemy */			
-	{"SA", CE, Country_SA_ChDesp}, /* Saudi Arabia */			
-	{"SG", CE, Country_SG_ChDesp}, /* Singapore */			
-	{"SK", CE, Country_SK_ChDesp}, /* Slovakia */			
-	{"SI", CE, Country_SI_ChDesp}, /* Slovenia */					
-	{"ZA", CE, Country_ZA_ChDesp}, /* South Africa */					
-	{"ES", CE, Country_ES_ChDesp}, /* Spain */				
-	{"LK", CE, Country_LK_ChDesp}, /* Sri Lanka */				
-	{"SE", CE, Country_SE_ChDesp}, /* Sweden */					
-	{"CH", CE, Country_CH_ChDesp}, /* Switzerland */					
-	{"SY", CE, Country_SY_ChDesp}, /* Syrian Arab Republic */					
-	{"TW", FCC,Country_TW_ChDesp}, /* Taiwan */			
-	{"TH", CE, Country_TH_ChDesp}, /* Thailand */					
-	{"TT", CE, Country_TT_ChDesp}, /* Trinidad and Tobago */			
-	{"TN", CE, Country_TN_ChDesp}, /* Tunisia */				
-	{"TR", CE, Country_TR_ChDesp}, /* Turkey */					
-	{"UA", CE, Country_UA_ChDesp}, /* Ukraine */					
-	{"AE", CE, Country_AE_ChDesp}, /* United Arab Emirates */					
-	{"GB", CE, Country_GB_ChDesp}, /* United Kingdom */			
-	{"US", FCC,Country_US_ChDesp}, /* United States */			
-	{"UY", CE, Country_UY_ChDesp}, /* Uruguay */					
-	{"UZ", CE, Country_UZ_ChDesp}, /* Uzbekistan */				
-	{"VE", CE, Country_VE_ChDesp}, /* Venezuela */				
-	{"VN", CE, Country_VN_ChDesp}, /* Viet Nam */					
-	{"YE", CE, Country_YE_ChDesp}, /* Yemen */					
-	{"ZW", CE, Country_ZW_ChDesp}, /* Zimbabwe */	
+	{"KR", CE, Country_KR_ChDesp}, /* Korea, Republic of */
+	{"KW", CE, Country_KW_ChDesp}, /* Kuwait */
+	{"LV", CE, Country_LV_ChDesp}, /* Latvia */
+	{"LB", CE, Country_LB_ChDesp}, /* Lebanon */
+	{"LI", CE, Country_LI_ChDesp}, /* Liechtenstein */
+	{"LT", CE, Country_LT_ChDesp}, /* Lithuania */
+	{"LU", CE, Country_LU_ChDesp}, /* Luxembourg */
+	{"MO", CE, Country_MO_ChDesp}, /* Macao */
+	{"MK", CE, Country_MK_ChDesp}, /* Macedonia, Republic of */
+	{"MY", CE, Country_MY_ChDesp}, /* Malaysia */
+	{"MT", CE, Country_MT_ChDesp}, /* Malta */
+	{"MX", CE, Country_MX_ChDesp}, /* Mexico */
+	{"MC", CE, Country_MC_ChDesp}, /* Monaco */
+	{"MA", CE, Country_MA_ChDesp}, /* Morocco */
+	{"NP", CE, Country_NP_ChDesp}, /* Nepal */
+	{"NL", CE, Country_NL_ChDesp}, /* Netherlands */
+	{"AN", CE, Country_AN_ChDesp}, /* Netherlands Antilles */
+	{"NZ", CE, Country_NZ_ChDesp}, /* New Zealand */
+	{"NO", CE, Country_NO_ChDesp}, /* Norway */
+	{"OM", CE, Country_OM_ChDesp}, /* Oman */
+	{"PK", CE, Country_PK_ChDesp}, /* Pakistan */
+	{"PA", CE, Country_PA_ChDesp}, /* Panama */
+	{"PG", CE, Country_PG_ChDesp}, /* Papua New Guinea */
+	{"PE", CE, Country_PE_ChDesp}, /* Peru */
+	{"PH", CE, Country_PH_ChDesp}, /* Philippines */
+	{"PL", CE, Country_PL_ChDesp}, /* Poland */
+	{"PT", CE, Country_PT_ChDesp}, /* Portuga l*/
+	{"PR", CE, Country_PR_ChDesp}, /* Puerto Rico */
+	{"QA", CE, Country_QA_ChDesp}, /* Qatar */
+	{"RO", CE, Country_RO_ChDesp}, /* Romania */
+	{"RU", CE, Country_RU_ChDesp}, /* Russian Federation */
+	{"BL", CE, Country_BL_ChDesp}, /* Saint Barth'elemy */
+	{"SA", CE, Country_SA_ChDesp}, /* Saudi Arabia */
+	{"SG", CE, Country_SG_ChDesp}, /* Singapore */
+	{"SK", CE, Country_SK_ChDesp}, /* Slovakia */
+	{"SI", CE, Country_SI_ChDesp}, /* Slovenia */
+	{"ZA", CE, Country_ZA_ChDesp}, /* South Africa */
+	{"ES", CE, Country_ES_ChDesp}, /* Spain */
+	{"LK", CE, Country_LK_ChDesp}, /* Sri Lanka */
+	{"SE", CE, Country_SE_ChDesp}, /* Sweden */
+	{"CH", CE, Country_CH_ChDesp}, /* Switzerland */
+	{"SY", CE, Country_SY_ChDesp}, /* Syrian Arab Republic */
+	{"TW", FCC,Country_TW_ChDesp}, /* Taiwan */
+	{"TH", CE, Country_TH_ChDesp}, /* Thailand */
+	{"TT", CE, Country_TT_ChDesp}, /* Trinidad and Tobago */
+	{"TN", CE, Country_TN_ChDesp}, /* Tunisia */
+	{"TR", CE, Country_TR_ChDesp}, /* Swan */
+	{"UA", CE, Country_UA_ChDesp}, /* Ukraine */
+	{"AE", CE, Country_AE_ChDesp}, /* United Arab Emirates */
+	{"GB", CE, Country_GB_ChDesp}, /* United Kingdom */
+	{"US", FCC,Country_US_ChDesp}, /* United States */
+	{"UY", CE, Country_UY_ChDesp}, /* Uruguay */
+	{"UZ", CE, Country_UZ_ChDesp}, /* Uzbekistan */
+	{"VE", CE, Country_VE_ChDesp}, /* Venezuela */
+	{"VN", CE, Country_VN_ChDesp}, /* Viet Nam */
+	{"YE", CE, Country_YE_ChDesp}, /* Yemen */
+	{"ZW", CE, Country_ZW_ChDesp}, /* Zimbabwe */
 	{"EU", CE, Country_EU_ChDesp}, /* Europe */
 	{"NA", FCC,Country_NA_ChDesp}, /* North America */
 	{"WO", CE, Country_WO_ChDesp}, /* World Wide */
-	{""  , 0,  NULL}	     , /* End */	
+	{""  , 0,  NULL}	     , /* End */
 };
 
 static PCH_REGION GetChRegion(
@@ -1604,7 +1604,7 @@ static VOID ChBandCheck(
 static UCHAR FillChList(
 	IN PRTMP_ADAPTER pAd,
 	IN PCH_DESP pChDesp,
-	IN UCHAR Offset, 
+	IN UCHAR Offset,
 	IN UCHAR increment,
 	IN UCHAR regulatoryDomain)
 {
@@ -1618,7 +1618,7 @@ static UCHAR FillChList(
 		if (!strncmp((PSTRING) pAd->CommonCfg.CountryCode, "JP", 2))
         {
             /* for JP, ch14 can only be used when PhyMode is "B only" */
-            if ( (channel==14) && 
+            if ( (channel==14) &&
 			(!WMODE_EQUAL(pAd->CommonCfg.PhyMode, WMODE_B)))
             {
                     pChDesp->NumOfCh--;
@@ -1626,7 +1626,7 @@ static UCHAR FillChList(
             }
         }
 /*New FCC spec restrict the used channel under DFS */
-#ifdef CONFIG_AP_SUPPORT	
+#ifdef CONFIG_AP_SUPPORT
 		if ((pAd->CommonCfg.bIEEE80211H == 1) &&
 			(pAd->CommonCfg.RDDurRegion == FCC) &&
 			(pAd->Dot11_H.bDFSIndoor == 1))
@@ -1701,12 +1701,12 @@ static inline VOID CreateChList(
 		return;
 
 	ChBandCheck(pAd->CommonCfg.PhyMode, &ChType);
-	
+
 	if (pAd->CommonCfg.pChDesp != NULL)
 	   pChDesp = (PCH_DESP) pAd->CommonCfg.pChDesp;
 	else
 	   pChDesp = pChRegion->pChDesp;
-	   
+
 	for (i = 0; pChDesp[i].FirstChannel != 0; i++)
 	{
 		if (pChDesp[i].FirstChannel == 0)

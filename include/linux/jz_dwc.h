@@ -38,14 +38,13 @@ typedef enum otg_mode {
 	DUAL_MODE = 3,
 } otg_mode_t;
 
-static otg_mode_t inline  dwc2_usb_mode(void) {
-#if defined(CONFIG_USB_DWC2_HOST_ONLY)
-	return HOST_ONLY;
-#elif defined(CONFIG_USB_DWC2_DEVICE_ONLY)
-	return DEVICE_ONLY;
-#else
-	return DUAL_MODE;
-#endif
+static otg_mode_t inline dwc2_usb_mode(void) {
+	if (IS_ENABLED(CONFIG_USB_DWC2_HOST_ONLY))
+		return HOST_ONLY;
+	else if (IS_ENABLED(CONFIG_USB_DWC2_DEVICE_ONLY))
+		return DEVICE_ONLY;
+	else
+		return DUAL_MODE;
 }
 
 void jz_otg_phy_init(otg_mode_t mode);
@@ -53,6 +52,4 @@ void jz_otg_phy_suspend(int suspend);
 int  jz_otg_phy_is_suspend(void);
 void jz_otg_phy_powerdown(void);
 void jz_otg_ctr_reset(void);
-void jz_otg_sft_id(int level);
-void jz_otg_sft_id_off(void);
 #endif

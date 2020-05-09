@@ -87,7 +87,7 @@ int init_codec(void)
 	/* codec precharge */
 	codec_reg_set(TS_CODEC_CHCR_27, 6, 7, 1);
 	msleep(20);
-#ifdef CONFIG_SOC_T20
+#if (defined(CONFIG_SOC_T20) || defined(CONFIG_SOC_T30))
 	codec_reg_set(TS_CODEC_CCR_28, 7, 7, 1);
 	msleep(20);
 	for (i = 0; i < 6; i++) {

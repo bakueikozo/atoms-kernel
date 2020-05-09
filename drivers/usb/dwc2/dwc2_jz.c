@@ -33,29 +33,38 @@ struct dwc2_jz {
 	struct clk		*clk;
 	struct clk		*cgu_clk;
 	struct clk		*pwr_clk;
-	struct mutex		irq_lock;		/* protect irq op */
+	struct mutex	irq_lock;		/* protect irq op */
+	struct wake_lock	resume_wake_lock;
+	struct work_struct  turn_off_work;
 
 	/*device*/
+#if DWC2_DEVICE_MODE_ENABLE
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	struct jzdwc_pin 	*dete_pin;	/* Host mode may used this pin to judge extern vbus mode
 						 * Device mode may used this pin judge B-device insert */
-	int 			dete_irq;
+	int 		dete_irq;
+#endif
 	int			pullup_on;
-	unsigned long delay_jiffies;
+#endif
+#if DWC2_HOST_MODE_ENABLE
 	/*host*/
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	int			id_irq;
 	struct jzdwc_pin 	*id_pin;
-	struct wake_lock        id_resume_wake_lock;
+#endif
 	struct jzdwc_pin 	*drvvbus_pin;		/*Use drvvbus pin or regulator to set vbus on*/
 	struct regulator 	*vbus;
 	atomic_t	vbus_on;
 	struct work_struct	vbus_work;
 	void *work_data;
 	struct input_dev	*input;
+#endif
 };
 
 #define to_dwc2_jz(dwc) container_of((dwc)->pdev, struct dwc2_jz, dwc2)
 
 #if DWC2_HOST_MODE_ENABLE
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 int dwc2_jz_input_init(struct dwc2_jz *jz) {
 #ifdef CONFIG_USB_DWC2_INPUT_EVDEV
 	int ret = 0;
@@ -90,6 +99,7 @@ static void dwc2_jz_input_cleanup(struct dwc2_jz *jz)
 		input_unregister_device(jz->input);
 }
 
+#ifdef CONFIG_USB_DWC2_INPUT_EVDEV
 static void __dwc2_jz_input_report_key(struct dwc2_jz *jz,
 					unsigned int code, int value)
 {
@@ -98,64 +108,66 @@ static void __dwc2_jz_input_report_key(struct dwc2_jz *jz,
 		input_sync(jz->input);
 	}
 }
+#endif
 
 static void __dwc2_input_report_power2_key(struct dwc2_jz *jz) {
+#ifdef CONFIG_USB_DWC2_INPUT_EVDEV
 	if (jz->input) {
 		__dwc2_jz_input_report_key(jz, KEY_POWER2, 1);
 		msleep(50);
 		__dwc2_jz_input_report_key(jz, KEY_POWER2, 0);
 	}
+#endif
 }
 #endif
+#endif
 
-int dwc2_clk_is_enabled(struct dwc2 *dwc) {
+void dwc2_clk_enable(struct dwc2 *dwc)
+{
 	struct dwc2_jz *jz = to_dwc2_jz(dwc);
-	if (IS_ERR(jz->clk))
-		return 1;
-	return clk_is_enabled(jz->clk);
-}
-void dwc2_clk_enable(struct dwc2 *dwc) {
-	struct dwc2_jz *jz = to_dwc2_jz(dwc);
-
-	if (!dwc2_clk_is_enabled(dwc) && !IS_ERR(jz->clk)) {
-		if (jz->pwr_clk)
-			clk_enable(jz->pwr_clk);
-		if (jz->cgu_clk)
-			clk_enable(jz->cgu_clk);
-		clk_enable(jz->clk);
-	}
+	if (jz->pwr_clk)
+		clk_enable(jz->pwr_clk);
+	clk_enable(jz->cgu_clk);
+	clk_enable(jz->clk);
 }
 
-void dwc2_clk_disable(struct dwc2 *dwc) {
+void dwc2_clk_disable(struct dwc2 *dwc)
+{
 	struct dwc2_jz *jz = to_dwc2_jz(dwc);
 
-	if (dwc2_clk_is_enabled(dwc) && !IS_ERR(jz->clk)) {
-		clk_disable(jz->clk);
-		if (jz->cgu_clk)
-			clk_disable(jz->cgu_clk);
-		if (jz->pwr_clk)
-			clk_disable(jz->pwr_clk);
-	}
+	clk_disable(jz->clk);
+	clk_disable(jz->cgu_clk);
+	if (jz->pwr_clk)
+		clk_disable(jz->pwr_clk);
 }
-
+#if DWC2_DEVICE_MODE_ENABLE
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 /*usb insert detect*/
 struct jzdwc_pin __attribute__((weak)) dwc2_dete_pin = {
 	.num = -1,
 	.enable_level = -1,
 };
+#endif
+#endif
 
+#if DWC2_HOST_MODE_ENABLE
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 /*usb host plug insert detect*/
 struct jzdwc_pin __attribute__((weak)) dwc2_id_pin = {
 	.num = -1,
 	.enable_level = -1,
 };
+#endif
 
 /*usb drvvbus pin*/
 struct jzdwc_pin __attribute__((weak)) dwc2_drvvbus_pin = {
 	.num = -1,
 	.enable_level = -1,
 };
+#endif
 
+#if DWC2_DEVICE_MODE_ENABLE
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 static int __dwc2_get_detect_pin_status(struct dwc2_jz *jz) {
 	int insert = 0;
 	if (gpio_is_valid(jz->dete_pin->num)) {
@@ -165,21 +177,19 @@ static int __dwc2_get_detect_pin_status(struct dwc2_jz *jz) {
 	}
 	return insert;
 }
+#endif
+#endif
 
-int dwc2_get_detect_pin_status(struct dwc2 *dwc)
-{
-	struct dwc2_jz *jz = to_dwc2_jz(dwc);
-	return __dwc2_get_detect_pin_status(jz);
-}
-EXPORT_SYMBOL_GPL(dwc2_get_detect_pin_status);
-
+#if DWC2_HOST_MODE_ENABLE
 static int __dwc2_get_id_level(struct dwc2_jz* jz) {
 	int id_level = 1;
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	if (gpio_is_valid(jz->id_pin->num)) {
 		id_level = gpio_get_value(jz->id_pin->num);
 		if (jz->id_pin->enable_level == HIGH_ENABLE)
 			id_level = !id_level;
 	}
+#endif
 	return id_level;
 }
 int dwc2_get_id_level(struct dwc2 *dwc)
@@ -188,6 +198,7 @@ int dwc2_get_id_level(struct dwc2 *dwc)
 	return __dwc2_get_id_level(jz);
 }
 EXPORT_SYMBOL_GPL(dwc2_get_id_level);
+#endif
 
 void dwc2_gpio_irq_mutex_lock(struct dwc2 *dwc)
 {
@@ -205,6 +216,8 @@ EXPORT_SYMBOL_GPL(dwc2_gpio_irq_mutex_unlock);
 
 #if DWC2_DEVICE_MODE_ENABLE
 extern void dwc2_gadget_plug_change(int plugin);
+
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 static void usb_plug_change(struct dwc2_jz *jz) {
 
 	int insert = __dwc2_get_detect_pin_status(jz);
@@ -214,7 +227,7 @@ static void usb_plug_change(struct dwc2_jz *jz) {
 	synchronize_irq(dwc->irq);
 	flush_work(&dwc->otg_id_work);
 	dwc2_gadget_plug_change(insert);
-	if (!jz_otg_phy_is_suspend())
+	if (dwc->lx_state != DWC_OTG_L3)
 		dwc2_enable_global_interrupts(dwc);
 }
 
@@ -228,50 +241,46 @@ static irqreturn_t usb_detect_interrupt(int irq, void *dev_id)
 	mutex_unlock(&jz->irq_lock);
 	return IRQ_HANDLED;
 }
-
+#endif
 #endif /* !DWC2_DEVICE_MODE_ENABLE */
 
 #if DWC2_HOST_MODE_ENABLE
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 static irqreturn_t usb_host_id_interrupt(int irq, void *dev_id) {
 	struct dwc2_jz	*jz = (struct dwc2_jz *)dev_id;
 	struct dwc2 *dwc = platform_get_drvdata(&jz->dwc2);
 	int is_first = 1, dither_count = DWC2_HOST_ID_MAX_DOG_COUNT;
+	unsigned long flags;
 
 	mutex_lock(&jz->irq_lock);
-	wake_lock(&jz->id_resume_wake_lock);
-	/* 50ms dither filter */
+	wake_lock(&jz->resume_wake_lock);
 	msleep(50);
 	while (1) {
 		if (__dwc2_get_id_level(jz) == 0) { /* host */
-			/* Think about vbus with an big capacity, when we disconnect B-device, the vbus
-			 * slow down to 0v, Cause the detect pin is still active, B-device not disconnect from
-			 * system in time, At thie time, the A-host is connected, we resume controller,
-			 * But after a while the device disconnected, suppend controller , shit happend
-			 */
-			if (__dwc2_get_detect_pin_status(jz))
-				dither_count++;
-			else {
-				printk("host detect\n");
-				dwc2_resume_controller(dwc);
+			if (likely(!dwc->suspended)) {
+				dwc2_spin_lock_irqsave(dwc, flags);
+				dwc2_turn_on(dwc);
+				dwc2_spin_unlock_irqrestore(dwc, flags);
 				if (is_first) /*slcao's version just report power2_key in the first time,
-						it's a bug or not, we just keep it and take care of it*/
+								it's a bug or not, we just keep it and take care of it*/
 					__dwc2_input_report_power2_key(jz);
-				jz_otg_sft_id_off();
-				break;
 			}
+			break;
 		}
 		/*keep filter*/
 		is_first = 0;
 		if (!dither_count)
 			break;
 		dither_count--;
+		mutex_unlock(&jz->irq_lock);
 		schedule_timeout_uninterruptible(DWC2_HOST_ID_TIMER_INTERVAL + 1);
+		mutex_lock(&jz->irq_lock);
 	}
 	mutex_unlock(&jz->irq_lock);
-	wake_lock_timeout(&jz->id_resume_wake_lock, 3 * HZ);
+	wake_lock_timeout(&jz->resume_wake_lock, 3 * HZ);
 	return IRQ_HANDLED;
 }
-
+#endif
 static int __dwc2_get_drvvbus_level(struct dwc2_jz *jz)
 {
 	int drvvbus = 0;
@@ -330,6 +339,7 @@ void jz_set_vbus(struct dwc2 *dwc, int is_on)
 			flush_work(&jz->vbus_work);
 	}
 }
+EXPORT_SYMBOL_GPL(jz_set_vbus);
 
 static ssize_t jz_vbus_show(struct device *dev,
 		struct device_attribute *attr,
@@ -370,6 +380,7 @@ static ssize_t jz_vbus_set(struct device *dev,
 static DEVICE_ATTR(vbus, S_IWUSR | S_IRUSR,
 		jz_vbus_show, jz_vbus_set);
 
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 static ssize_t jz_id_show(struct device *dev,
 		struct device_attribute *attr,
 		char *buf) {
@@ -381,68 +392,83 @@ static ssize_t jz_id_show(struct device *dev,
 
 static DEVICE_ATTR(id, S_IRUSR |  S_IRGRP | S_IROTH,
 		jz_id_show, NULL);
-#else	/* DWC2_HOST_MODE_ENABLE */
-void jz_set_vbus(struct dwc2 *dwc, int is_on) {}
-#endif	/* !DWC2_HOST_MODE_ENABLE */
-EXPORT_SYMBOL_GPL(jz_set_vbus);
+#endif
+#endif	/* DWC2_HOST_MODE_ENABLE */
 
-int dwc2_suspend_controller(struct dwc2 *dwc)
+static void dwc2_power_off(struct dwc2 *dwc)
 {
-	if (dwc->suspended || (!dwc->keep_phy_on)) {
-#ifndef CONFIG_USB_DWC2_SAVING_POWER
-		pr_info("Suspend otg by suspend phy\n");
+	if (dwc->lx_state != DWC_OTG_L3) {
+		pr_info("dwc otg power off\n");
+		dwc->phy_inited = 0;
 		dwc2_disable_global_interrupts(dwc);
 		jz_otg_phy_suspend(1);
-#else
-		if (dwc->suspended ||
-				(dwc2_is_host_mode(dwc)) ||
-				(dwc2_is_device_mode(dwc) && !dwc2_has_ep_enabled(dwc))) {
-			pr_info("Suspend otg by shutdown dwc cotroller and phy\n");
-			dwc->phy_inited = 0;
-			dwc2_disable_global_interrupts(dwc);
-			jz_otg_phy_suspend(1);
-			jz_otg_phy_powerdown();
-			dwc2_clk_disable(dwc);
-		}
-#endif
+		jz_otg_phy_powerdown();
+		dwc2_clk_disable(dwc);
+		dwc->lx_state = DWC_OTG_L3;
 	}
+	return;
+}
+
+static void dwc2_turn_off_work(struct work_struct *work)
+{
+	struct dwc2_jz *jz = container_of(work, struct dwc2_jz, turn_off_work);
+	struct dwc2 *dwc = platform_get_drvdata(&jz->dwc2);
+	unsigned long flags;
+	unsigned int id;
+
+	mutex_lock(&jz->irq_lock);
+	id = dwc2_get_id_level(dwc);
+	dwc2_spin_lock_irqsave(dwc, flags);
+	if (!dwc->plugin && !dwc2_has_ep_enabled(dwc) && id)
+		dwc2_power_off(dwc);
+	dwc2_spin_unlock_irqrestore(dwc, flags);
+	mutex_unlock(&jz->irq_lock);
+}
+/*call with dwc2 spin lock*/
+int dwc2_turn_off(struct dwc2 *dwc, bool graceful)
+{
+	struct dwc2_jz *jz = to_dwc2_jz(dwc);
+
+	if (graceful)
+		schedule_work(&jz->turn_off_work);
+	else
+		dwc2_power_off(dwc);
 	return 0;
 }
-EXPORT_SYMBOL_GPL(dwc2_suspend_controller);
+EXPORT_SYMBOL_GPL(dwc2_turn_off);
 
-int dwc2_resume_controller(struct dwc2* dwc)
+static void dwc2_power_on(struct dwc2 *dwc)
 {
-	if (!dwc2_clk_is_enabled(dwc)) {
-		pr_info("Resume otg by reinit dwc controller and phy\n");
+	if (dwc->lx_state == DWC_OTG_L3) {
+		pr_info("power on and reinit dwc2 otg\n");
 		dwc2_clk_enable(dwc);
 		jz_otg_ctr_reset();
 		jz_otg_phy_init(dwc2_usb_mode());
 		jz_otg_phy_suspend(0);
 		dwc2_core_init(dwc);
-#if DWC2_DEVICE_MODE_ENABLE
+#if !IS_ENABLED(CONFIG_USB_DWC2_HOST_ONLY)
 		if (dwc2_is_device_mode(dwc))
 			dwc2_device_mode_init(dwc);
 #endif
+		dwc->lx_state = DWC_OTG_L0;
 		dwc2_enable_global_interrupts(dwc);
 	}
-#ifndef CONFIG_USB_DWC2_SAVING_POWER
-	else if (jz_otg_phy_is_suspend()) {
-		pr_info("Resume otg by resume phy\n");
-		jz_otg_phy_suspend(0);
-		dwc2_enable_global_interrupts(dwc);
-	}
-#endif
+}
 
-	dwc2_disable_vbus_detect(dwc);
-
+/*call with dwc2 spin lock*/
+int dwc2_turn_on(struct dwc2* dwc)
+{
+	dwc2_power_on(dwc);
 	return 0;
 }
-EXPORT_SYMBOL_GPL(dwc2_resume_controller);
+EXPORT_SYMBOL_GPL(dwc2_turn_on);
 
 static struct attribute *dwc2_jz_attributes[] = {
 #if DWC2_HOST_MODE_ENABLE
 	&dev_attr_vbus.attr,
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	&dev_attr_id.attr,
+#endif
 #endif	/*DWC2_HOST_MODE_ENABLE*/
 	NULL
 };
@@ -458,8 +484,10 @@ static int dwc2_jz_probe(struct platform_device *pdev) {
 	struct platform_device		*dwc2;
 	struct dwc2_jz		*jz;
 	struct dwc2_platform_data	*dwc2_plat_data;
-	int				 ret = -ENOMEM;
+	int	ret = -ENOMEM;
+	bool init_power_off = false;
 
+	printk(KERN_DEBUG"dwc2 otg probe start\n");
 	jz = devm_kzalloc(&pdev->dev, sizeof(*jz), GFP_KERNEL);
 	if (!jz) {
 		dev_err(&pdev->dev, "not enough memory\n");
@@ -491,6 +519,7 @@ static int dwc2_jz_probe(struct platform_device *pdev) {
 
 	jz->dev	= &pdev->dev;
 	mutex_init(&jz->irq_lock);
+	INIT_WORK(&jz->turn_off_work, dwc2_turn_off_work);
 
 	jz->clk = devm_clk_get(&pdev->dev, OTG_CLK_NAME);
 	if (IS_ERR(jz->clk)) {
@@ -514,68 +543,64 @@ static int dwc2_jz_probe(struct platform_device *pdev) {
 	if (jz->pwr_clk)
 		clk_enable(jz->pwr_clk);
 
-	jz->dete_pin = &dwc2_dete_pin;
-	jz->drvvbus_pin = &dwc2_drvvbus_pin;
-	jz->id_pin = &dwc2_id_pin;
+	wake_lock_init(&jz->resume_wake_lock, WAKE_LOCK_SUSPEND, "usb insert wake lock");
 
-	/*pull enable*/
-	if (gpio_is_valid(jz->dete_pin->num))
+#if !IS_ENABLED(CONFIG_USB_DWC2_HOST_ONLY)	/*DEVICE*/
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
+	jz->dete_irq = -1;
+	jz->dete_pin = &dwc2_dete_pin;
+	if (gpio_is_valid(jz->dete_pin->num)) {
 		ret = devm_gpio_request_one(&pdev->dev, jz->dete_pin->num,
 				GPIOF_DIR_IN, "usb-insert-detect");
-	jz->dete_irq= -1;
-#if DWC2_DEVICE_MODE_ENABLE
-	if (ret == 0) {
-		jz->dete_irq = gpio_to_irq(jz->dete_pin->num);
-	} else {
-		dwc2_plat_data->keep_phy_on = 1;
+		if (!ret) {
+			jz->dete_irq = gpio_to_irq(jz->dete_pin->num);
+		}
 	}
-#endif	/* DWC2_DEVICE_MODE_ENABLE */
+	if (jz->dete_irq < 0)
+		dwc2_plat_data->keep_phy_on = 1;
+#else
+	dwc2_plat_data->keep_phy_on = 1;
+#endif
+#endif	/*DEVICE*/
 
-	jz->id_irq = -1;
-#if DWC2_HOST_MODE_ENABLE
+#if !IS_ENABLED(CONFIG_USB_DWC2_DEVICE_ONLY)	/*HOST*/
+#ifndef CONFIG_USB_DWC2_DRVVBUS_FUNCTION_PIN
+	jz->drvvbus_pin = &dwc2_drvvbus_pin;
 	jz->vbus = regulator_get(NULL, VBUS_REG_NAME);
 	if (IS_ERR_OR_NULL(jz->vbus)) {
 		if (gpio_is_valid(jz->drvvbus_pin->num)) {
 			ret = devm_gpio_request_one(&pdev->dev, jz->drvvbus_pin->num,
 					GPIOF_DIR_OUT, "drvvbus_pin");
-
-			if (ret < 0) jz->drvvbus_pin->num = -1;
+			if (ret < 0) jz->drvvbus_pin = NULL;
 		}
-		dev_warn(&pdev->dev, "regulator %s get error\n", VBUS_REG_NAME);
-	} else {
-		jz->drvvbus_pin->num = -1;
+		if (!jz->drvvbus_pin)
+			dev_warn(&pdev->dev, "Not Found %s regulator \n", VBUS_REG_NAME);
+		jz->vbus = NULL;
 	}
 	INIT_WORK(&jz->vbus_work, dwc2_vbus_work);
 	atomic_set(&jz->vbus_on, 0);
+#endif
 
-	if (gpio_is_valid(jz->id_pin->num)) {
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
+	jz->id_pin = &dwc2_id_pin;
+	jz->id_irq = -1;
+	if(gpio_is_valid(jz->id_pin->num)) {
 		ret = devm_gpio_request_one(&pdev->dev, jz->id_pin->num,
 				GPIOF_DIR_IN, "otg-id-detect");
-		if (ret == 0) {
+		if (!ret) {
 			jz->id_irq = gpio_to_irq(jz->id_pin->num);
-			wake_lock_init(&jz->id_resume_wake_lock, WAKE_LOCK_SUSPEND, "otgid-resume");
-		} else {
-			dwc2_plat_data->keep_phy_on = 1;
 		}
-	} else {
-		dwc2_plat_data->keep_phy_on = 1;
 	}
-
+	if (jz->id_irq < 0)
+		dwc2_plat_data->keep_phy_on = 1;
 	dwc2_jz_input_init(jz);
-#endif	/* DWC2_HOST_MODE_ENABLE */
+#else
+	dwc2_plat_data->keep_phy_on = 1;
+#endif
+#endif	/*HOST*/
 
 	jz_otg_ctr_reset();
 	jz_otg_phy_init(dwc2_usb_mode());
-	if (!dwc2_plat_data->keep_phy_on)
-		jz_otg_sft_id(1);
-	else {
-		jz_otg_sft_id_off();
-	}
-
-	/*
-	 * Close VBUS detect in DWC-OTG PHY.	WHY???
-	 */
-	//*(unsigned int*)0xb3500000 |= 0xc;
 
 	ret = platform_device_add_resources(dwc2, pdev->resource,
 					pdev->num_resources);
@@ -590,12 +615,14 @@ static int dwc2_jz_probe(struct platform_device *pdev) {
 		goto fail_register_dwc2_dev;
 	}
 
-#if DWC2_DEVICE_MODE_ENABLE
+#if !IS_ENABLED(CONFIG_USB_DWC2_HOST_ONLY)
 	if (dwc2_plat_data->keep_phy_on) {
 		dwc2_gadget_plug_change(1);
-	} else {
+	}
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
+	else {
 		ret = devm_request_threaded_irq(&pdev->dev,
-				gpio_to_irq(jz->dete_pin->num),
+				jz->dete_irq,
 				NULL,
 				usb_detect_interrupt,
 				IRQF_TRIGGER_RISING|IRQF_TRIGGER_FALLING|IRQF_ONESHOT,
@@ -608,58 +635,70 @@ static int dwc2_jz_probe(struct platform_device *pdev) {
 			mutex_lock(&jz->irq_lock);
 			dwc2_gadget_plug_change(1);
 			mutex_unlock(&jz->irq_lock);
-		}
+		} else
+			init_power_off = true;
 	}
-#endif	/* DWC2_DEVICE_MODE_ENABLE */
+#endif
+#endif
 
-#if DWC2_HOST_MODE_ENABLE
-	if (dwc2_plat_data->keep_phy_on) {
-		struct dwc2* dwc = platform_get_drvdata(dwc2);
-		dwc2_resume_controller(dwc);
-	} else {
+#if !IS_ENABLED(CONFIG_USB_DWC2_DEVICE_ONLY)
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
+	if (!dwc2_plat_data->keep_phy_on) {
 		unsigned long flags = 0;
 		if (jz->id_pin->enable_level == HIGH_ENABLE)
 			flags = IRQF_TRIGGER_RISING;
 		else
 			flags = IRQF_TRIGGER_FALLING;
 		ret = devm_request_threaded_irq(&pdev->dev,
-				gpio_to_irq(jz->id_pin->num),
+				jz->id_irq,
 				NULL,
 				usb_host_id_interrupt,
 				flags | IRQF_ONESHOT,
-				"usb-host-id", jz);
+				"usb-host-id",
+				jz);
 		if (ret) {
 			dev_err(&pdev->dev, "request host id interrupt fail!\n");
 			goto fail_reuqest_irq;
-		} else if (!__dwc2_get_id_level(jz)) {
-			struct dwc2* dwc = platform_get_drvdata(dwc2);
-			dwc2_resume_controller(dwc);
-			jz_otg_sft_id_off();
 		}
+		if (__dwc2_get_id_level(jz))
+			init_power_off = false;
 	}
-#endif	/* DWC2_HOST_MODE_ENABLE */
+#endif /*CONFIG_BOARD_HAS_NO_DETE_FACILITY*/
+#endif
+	if (init_power_off) {
+		struct dwc2 *dwc = platform_get_drvdata(dwc2);
+		dwc2_turn_off(dwc, true);
+	}
 
 	ret = sysfs_create_group(&pdev->dev.kobj, &dwc2_jz_attr_group);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "failed to create sysfs group\n");
 	}
 
+	printk(KERN_DEBUG"dwc2 otg probe success\n");
 	return 0;
 
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 fail_reuqest_irq:
 	platform_device_unregister(&jz->dwc2);
+#endif
 fail_register_dwc2_dev:
 	platform_set_drvdata(pdev, NULL);
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	if (!dwc2_plat_data->keep_phy_on)
-		wake_lock_destroy(&jz->id_resume_wake_lock);
+		wake_lock_destroy(&jz->resume_wake_lock);
+#endif
+#if DWC2_HOST_MODE_ENABLE
 	if (!IS_ERR_OR_NULL(jz->vbus))
 		regulator_put(jz->vbus);
+#endif
 	clk_disable(jz->clk);
 
 	if (jz->cgu_clk)
 		clk_disable(jz->cgu_clk);
 	if (jz->pwr_clk)
 		clk_disable(jz->pwr_clk);
+	dev_err(&pdev->dev, "device probe failed\n");
 	return ret;
 }
 
@@ -668,15 +707,13 @@ static int dwc2_jz_remove(struct platform_device *pdev) {
 
 
 	platform_set_drvdata(pdev, NULL);
-	if (jz->dete_irq >= 0)
-		gpio_free(jz->dete_pin->num);
 #if DWC2_HOST_MODE_ENABLE
+#ifndef CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	dwc2_jz_input_cleanup(jz);
 #endif
-	if (jz->id_irq >= 0)
-		gpio_free(jz->id_pin->num);
 	if (!IS_ERR_OR_NULL(jz->vbus))
 		regulator_put(jz->vbus);
+#endif
 	clk_disable(jz->clk);
 
 	if (jz->cgu_clk)
@@ -688,7 +725,9 @@ static int dwc2_jz_remove(struct platform_device *pdev) {
 	return 0;
 }
 
-static int dwc2_jz_suspend(struct platform_device *pdev, pm_message_t state) {
+static int dwc2_jz_suspend(struct platform_device *pdev, pm_message_t state)
+{
+#ifndef  CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	struct dwc2_jz	*jz = platform_get_drvdata(pdev);
 #if DWC2_DEVICE_MODE_ENABLE
 	if (jz->dete_irq >= 0)
@@ -699,11 +738,13 @@ static int dwc2_jz_suspend(struct platform_device *pdev, pm_message_t state) {
 	if (jz->id_irq >= 0)
 		enable_irq_wake(jz->id_irq);
 #endif
-
+#endif /*CONFIG_BOARD_HAS_NO_DETE_FACILITY*/
 	return 0;
 }
 
-static int dwc2_jz_resume(struct platform_device *pdev) {
+static int dwc2_jz_resume(struct platform_device *pdev)
+{
+#ifndef  CONFIG_BOARD_HAS_NO_DETE_FACILITY
 	struct dwc2_jz	*jz = platform_get_drvdata(pdev);
 
 #if DWC2_DEVICE_MODE_ENABLE
@@ -715,6 +756,7 @@ static int dwc2_jz_resume(struct platform_device *pdev) {
 	if (jz->id_irq >= 0)
 		disable_irq_wake(jz->id_irq);
 #endif
+#endif /*CONFIG_BOARD_HAS_NO_DETE_FACILITY*/
 	return 0;
 }
 

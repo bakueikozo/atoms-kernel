@@ -149,7 +149,7 @@ static void dwc2_port_suspend(struct dwc2 *dwc, bool do_suspend) {
 
 	DWC2_RH_DEBUG_MSG("%s:%d: do_suspend = %d\n", __func__, __LINE__, do_suspend);
 
-	if (unlikely(dwc2_is_device_mode(dwc)))
+	if (unlikely(dwc2_is_device_mode(dwc) || dwc->lx_state == DWC_OTG_L3))
 		return;
 
 	if (do_suspend) {
@@ -198,15 +198,15 @@ static void dwc2_port_suspend(struct dwc2 *dwc, bool do_suspend) {
 	}
 }
 
-void dwc2_port_reset(struct dwc2 *dwc)
+int dwc2_port_reset(struct dwc2 *dwc)
 {
 	hprt0_data_t hprt0 = {.d32 = 0 };
 	pcgcctl_data_t pcgcctl;
 
 	DWC2_RH_DEBUG_MSG("%s:%d: do_reset\n", __func__, __LINE__);
 
-	if (unlikely(dwc2_is_device_mode(dwc)))
-		return;
+	if (unlikely(dwc2_is_device_mode(dwc) || dwc->lx_state == DWC_OTG_L3))
+		return -ENODEV;
 
 	pcgcctl.d32 = dwc_readl(dwc->pcgcctl);
 	pcgcctl.b.enbl_sleep_gating = 0;
@@ -227,6 +227,7 @@ void dwc2_port_reset(struct dwc2 *dwc)
 	hprt0.b.prtrst = 0;
 	dwc_writel(hprt0.d32, dwc->host_if.hprt0);
 	dwc->lx_state = DWC_OTG_L0;	/* Now back to the on state */
+	return 0;
 }
 
 void dwc2_test_mode(struct dwc2 *dwc, int test_mode) {
@@ -407,7 +408,7 @@ int dwc2_rh_hub_control(struct usb_hcd *hcd,
 			dwc_writel(hprt0.d32, dwc->host_if.hprt0);
 			break;
 		case USB_PORT_FEAT_RESET:
-			dwc2_port_reset(dwc);
+			retval = dwc2_port_reset(dwc);
 			break;
 		case USB_PORT_FEAT_SUSPEND:
 			dwc2_port_suspend(dwc, true);
@@ -426,7 +427,7 @@ int dwc2_rh_hub_control(struct usb_hcd *hcd,
 		/* "protocol stall" on error */
 		retval = -EPIPE;
 	}
-	return 0;
+	return retval;
 }
 
 int dwc2_rh_bus_suspend(struct usb_hcd *hcd) {

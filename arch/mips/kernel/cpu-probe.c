@@ -1048,11 +1048,15 @@ static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
 	c->tlbsize = 32;
 
 	config1 = read_c0_config1();
+
 	/* Xburst CU2 is MXUV2 */
-	if ((config1 & MIPS_CONF1_C2) && soc_support_mxuv2())
-		c->ases |= MIPS_ASE_XBURSTMXUV2;
-	else
-		c->ases |= MIPS_ASE_XBURSTMXU;
+	if (config1 & MIPS_CONF1_C2) {
+		if (soc_support_mxuv2()) {
+			c->ases |= MIPS_ASE_XBURSTMXUV2;
+		} else {
+			c->ases |= MIPS_ASE_XBURSTMXU;
+		}
+	}
 
 	__write_32bit_c0_register($16, 7, 0x10);
 	if((c->processor_id & PRID_CPU_ISA_MASK) == PRID_IMP_ISA_R2) {

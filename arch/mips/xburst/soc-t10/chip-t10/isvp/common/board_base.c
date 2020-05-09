@@ -104,6 +104,10 @@ static struct jz_platform_device platform_devices_array[] __initdata = {
 	DEF_DEVICE(&jz_codec_device, &codec_data, sizeof(struct snd_codec_data)),
 #endif
 
+#ifdef CONFIG_JZ_TS_DMIC
+	DEF_DEVICE(&mic_device,0,0),
+#endif
+
 #ifdef CONFIG_SND_ALSA_INGENIC
 	DEF_DEVICE(&jz_aic_dma_device, NULL, 0),
 	DEF_DEVICE(&jz_aic_device, NULL, 0),

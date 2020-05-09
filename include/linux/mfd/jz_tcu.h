@@ -2,8 +2,11 @@
 #define __JZ_TCU_H__
 
 #include <soc/tcu.h>
+#include <irq.h>
 
 #define timeout	500
+
+#define NR_TCU_CHNS TCU_NR_IRQS
 
 #define TCU_CHN_TDFR	0x0
 #define TCU_CHN_TDHR	0x4

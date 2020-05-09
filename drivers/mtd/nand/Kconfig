@@ -533,6 +533,12 @@ config MTD_NAND_JZ4740
 	help
 		Enables support for NAND Flash on JZ4740 SoC based boards.
 
+config MTD_JZ_SPI_NAND
+	tristate "Support for SPI_NAND"
+	depends on (JZ_SPI0 || JZ_SPI1) && !NAND
+	help
+	Enables support for MTD SPI NAND Flash.
+
 config MTD_NAND_FSMC
 	tristate "Support for NAND on ST Micros FSMC"
 	depends on PLAT_SPEAR || ARCH_NOMADIK || ARCH_U8500 || MACH_U300

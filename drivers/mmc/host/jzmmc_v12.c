@@ -134,6 +134,7 @@ struct jzmmc_host {
 	spinlock_t		lock;
 	unsigned int		double_enter;
 	int 			timeout_cnt;
+	struct proc_dir_entry *proc;
 };
 
 #define ERROR_IFLG (				\
@@ -297,6 +298,8 @@ static inline void jzmmc_clk_autoctrl(struct jzmmc_host *host, unsigned int on)
 		if(clk_is_enabled(host->clk))
 			clk_disable(host->clk);
 	}
+
+
 }
 static inline int check_error_status(struct jzmmc_host *host, unsigned int status)
 {
@@ -1082,6 +1085,8 @@ static void set_pin_status(struct jzmmc_pin *pin, int enable)
 	gpio_set_value(pin->num, enable);
 }
 
+extern struct proc_dir_entry * jz_proc_mkdir(char *s);
+extern void proc_remove(struct proc_dir_entry *de);
 static void jzmmc_detect_change(unsigned long data)
 {
 	struct jzmmc_host *host = (struct jzmmc_host *)data;
@@ -1094,10 +1099,25 @@ static void jzmmc_detect_change(unsigned long data)
 	if ((present != present_old) || (present_old && host->mmc->card)) {
 		if (present && present_old)
 			dev_warn(host->dev, "rapidly remove\n");
-		else
+		else{
 			dev_notice(host->dev, "card %s, state=%d\n",
 				   present ? "inserted" : "removed", host->state);
-
+			if(host->index == 0){
+				if(present){
+					if(!host->proc){
+						host->proc = jz_proc_mkdir("mmc0");
+						if(!host->proc){
+							printk("Failed to create mmc0 proc\n");
+						}
+					}
+				}else {
+					if(host->proc){
+						proc_remove(host->proc);
+						host->proc = NULL;
+					}
+				}
+			}
+		}
 		if (!present || present_old) {
 			clear_bit(JZMMC_CARD_PRESENT, &host->flags);
 			tasklet_disable(&host->tasklet);
@@ -1581,8 +1601,16 @@ static int __init jzmmc_gpio_init(struct jzmmc_host *host)
 {
 	struct card_gpio *card_gpio = host->pdata->gpio;
 	int ret = 0;
+	int cd_port, cd_pin;
 
 	if (card_gpio) {
+		if(card_gpio->cd.num > 0)
+		{
+			cd_port = card_gpio->cd.num / 32;
+			cd_pin = card_gpio->cd.num % 32;
+			jzgpio_ctrl_pull(cd_port, 0, cd_pin);
+		}
+
 		if (card_gpio->cd.num > 0 && gpio_request_one(card_gpio->cd.num,
 				     GPIOF_DIR_IN, "mmc_detect")) {
 			dev_err(host->dev, "no detect pin available\n");
@@ -1755,6 +1783,8 @@ static int __init jzmmc_probe(struct platform_device *pdev)
 	ret = jzmmc_gpio_init(host);
 	if (ret < 0)
 		goto err_gpio_init;
+
+	host->proc = NULL;
 
 	jzmmc_host_init(host, mmc);
 	ret = sysfs_create_group(&pdev->dev.kobj, &jzmmc_attr_group);

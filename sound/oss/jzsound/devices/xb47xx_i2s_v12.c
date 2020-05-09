@@ -205,7 +205,7 @@ static void i2s_set_filter(struct i2s_device *i2s_dev, int mode , uint32_t chann
 		case AFMT_U16_LE:
 		case AFMT_S16_LE:
 			if (channels == 1) {
-#if (defined(CONFIG_SOC_T10) || defined(CONFIG_SOC_T20))
+#if (defined(CONFIG_SOC_T10) || defined(CONFIG_SOC_T20) || defined(CONFIG_SOC_T30))
 				dp->filter = convert_16bits_stereo2mono_inno;
 #else
 				dp->filter = convert_16bits_stereo2mono;

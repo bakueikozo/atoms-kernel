@@ -19,7 +19,6 @@
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
 #include <linux/syscore_ops.h>
-#include <irq.h>
 #include <linux/wakelock.h>
 #include <linux/mutex.h>
 
@@ -33,8 +32,6 @@
 
 #include <linux/mfd/core.h>
 #include <linux/mfd/jz_tcu.h>
-
-#define NR_TCU_CHNS TCU_NR_IRQS
 
 static struct jz_tcu_chn g_tcu_chn[NR_TCU_CHNS] = {{0}};
 
@@ -126,8 +123,12 @@ void jz_tcu_config_chn(struct jz_tcu_chn *tcu_chn)
 	/* init level */
 	if(tcu_chn->init_level)
 		jz_tcu_set_pwm_output_init_level(tcu_chn, 1);
+	else
+		jz_tcu_set_pwm_output_init_level(tcu_chn, 0);
 	/* TCU mode */
-	if(tcu_chn->index == 0 || tcu_chn->index == 3) {
+	if(tcu_chn->index == 1 || tcu_chn->index == 2) {
+		tcu_chn->tcu_mode = TCU_MODE_2;
+	} else {
 		tcu_chn->tcu_mode = TCU_MODE_1;
 		/* shutdown mode */
 		if(tcu_chn->shutdown_mode) {
@@ -135,8 +136,6 @@ void jz_tcu_config_chn(struct jz_tcu_chn *tcu_chn)
 		}else {
 			tcu_chn_writel(tcu_chn, CHN_TCSR, tcu_chn_readl(tcu_chn, CHN_TCSR) & ~(TCSR_PWM_SD));
 		}
-	} else {
-		tcu_chn->tcu_mode = TCU_MODE_2;
 	}
 
 	/* clk source */
@@ -270,6 +269,10 @@ TCU_CELL_RES(0);
 TCU_CELL_RES(1);
 TCU_CELL_RES(2);
 TCU_CELL_RES(3);
+TCU_CELL_RES(4);
+TCU_CELL_RES(5);
+TCU_CELL_RES(6);
+TCU_CELL_RES(7);
 #undef TCU_CELL_RES
 
 static struct mfd_cell jz_tcu_cells[] = {
@@ -287,6 +290,10 @@ static struct mfd_cell jz_tcu_cells[] = {
 	DEF_TCU_CELL_NAME(1, "tcu_chn1"),
 	DEF_TCU_CELL_NAME(2, "tcu_chn2"),
 	DEF_TCU_CELL_NAME(3, "tcu_chn3"),
+	DEF_TCU_CELL_NAME(4, "tcu_chn4"),
+	DEF_TCU_CELL_NAME(5, "tcu_chn5"),
+	DEF_TCU_CELL_NAME(6, "tcu_chn6"),
+	DEF_TCU_CELL_NAME(7, "tcu_chn7"),
 };
 #undef DEF_TCU_CELL_NAME
 

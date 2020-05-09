@@ -103,6 +103,7 @@
 /* The divider is decided by the RTC clock frequency. */
 #define RTC_FREQ_DIVIDER	(32768 - 1)
 
+#define EXTERNAL_RTC_FREQ_DIVIDER      (46875 - 1)
 #define ms2clycle(x)  (((x) * RTC_FREQ_DIVIDER) / 1000)
 
 

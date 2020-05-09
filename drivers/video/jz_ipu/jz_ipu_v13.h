@@ -43,6 +43,7 @@ enum {
 	HAL_PIXEL_FORMAT_NV12		  = 0x18,
 	HAL_PIXEL_FORMAT_NV21 		  = 0x19,
 	HAL_PIXEL_FORMAT_BGRA_5551    = 0x1a,
+    HAL_PIXEL_FORMAT_HSV          = 0x1b,/*Add HSV*/
 
 	/* suport for YUV420 */
 	HAL_PIXEL_FORMAT_JZ_YUV_420_P       = 0x47700001, // YUV_420_P
@@ -166,6 +167,7 @@ struct jz_ipu {
 	char name[16];
 
 	struct clk *clk;
+	struct clk *ahb1_gate; /* T31 IPU mount at AHB1*/
 	void __iomem *iomem;
 	struct device *dev;
 	struct resource *res;

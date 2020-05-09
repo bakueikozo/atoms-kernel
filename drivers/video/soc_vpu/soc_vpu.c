@@ -341,6 +341,7 @@ find_channel_try_point:
 		spin_lock_irqsave(&fclist->slock, fcflag);
 		if (list_empty(&fclist->fclist_head)) {
 			spin_unlock_irqrestore(&fclist->slock, fcflag);
+			while(try_wait_for_completion(&fclist->cdone));
 			ret = -EBUSY;
 			dev_err(sc->mdev.this_device, "[fun:%s,line:%d] fclist err empty for not match complete\n", __func__, __LINE__);
 			goto err_fclist_empty;
@@ -426,6 +427,7 @@ find_vpu_try_point:
 		if (list_empty(&fvlist->fvlist_head)) {
 			fvlist->vdone.done = 0;
 			spin_unlock_irqrestore(&fvlist->slock, fvflag);
+			while(try_wait_for_completion(&fvlist->vdone));
 			ret = -EBUSY;
 			dev_err(sc->mdev.this_device, "[fun:%s,line:%d] fvlist err empty\n", __func__, __LINE__);
 			goto err_fvlist_empty;
@@ -436,7 +438,7 @@ find_vpu_try_point:
 			bool vpu_found = false;
 			list_for_each_entry(vlist_ptr, &fvlist->fvlist_head, list) {
 				vpu_ptr = vlist_ptr ? list_entry(vlist_ptr->vlist, struct vpu, vlist) : NULL;
-				if (vpu_ptr && vpu_ptr->id == cnode->vpu_id) {
+				if (vpu_ptr && ((vpu_ptr->vpu_id & cnode->vpu_id) == cnode->vpu_id)) {
 					vpu_found = true;
 					break;
 				}
@@ -450,6 +452,7 @@ find_vpu_try_point:
 				if (find_vpu_try_times++ < FIND_VPU_TRY_TIME_THRESHOLD) {
 					complete(&fvlist->vdone);
 					spin_unlock_irqrestore(&fvlist->slock, fvflag);
+					udelay(2000);
 					goto find_vpu_try_point;
 				} else {
 					spin_unlock_irqrestore(&fvlist->slock, fvflag);
@@ -1326,6 +1329,7 @@ static int __init soc_channel_init(void)
 		printk("%s:misc_register failed\n", __func__);
 		goto err_register_soc_channel;
 	}
+	printk("soc_vpu probe success,version:%s", SOC_VPU_VERSION);
 
 	return 0;
 

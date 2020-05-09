@@ -9,3 +9,6 @@ cflags-$(CONFIG_SOC_M200)	+= -I$(srctree)/arch/mips/xburst/soc-m200/include
 cflags-$(CONFIG_SOC_T15)	+= -I$(srctree)/arch/mips/xburst/soc-t15/include
 cflags-$(CONFIG_SOC_T10)	+= -I$(srctree)/arch/mips/xburst/soc-t10/include
 cflags-$(CONFIG_SOC_T20)	+= -I$(srctree)/arch/mips/xburst/soc-t20/include
+cflags-$(CONFIG_SOC_T30)	+= -I$(srctree)/arch/mips/xburst/soc-t30/include
+cflags-$(CONFIG_SOC_T21)	+= -I$(srctree)/arch/mips/xburst/soc-t21/include
+cflags-$(CONFIG_SOC_T31)	+= -I$(srctree)/arch/mips/xburst/soc-t31/include

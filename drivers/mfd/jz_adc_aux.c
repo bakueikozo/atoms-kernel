@@ -32,7 +32,7 @@
 
 #include <irq.h>
 
-static unsigned int VREF_ADC = 3060;
+static unsigned int VREF_ADC = 1800;
 #define AUXCONST   1024
 
 #define ADC_ENABLE			0
@@ -143,14 +143,12 @@ restart:
 		sadc_volt = readl(jz_adc_aux->base) & 0xfff;
 	} else if(tmp == -ERESTARTSYS){
 		goto restart;
-	}
-	else {
-		sadc_volt = tmp ? tmp : -ETIMEDOUT;
+	} else {
+        goto restart;
 	}
 
 	if (sadc_volt < 0) {
-		printk("jz_adc_aux read value error!!\n");
-		return -EIO;
+        goto restart;
 	}
 
 	disable_irq(jz_adc_aux->irq);

@@ -133,8 +133,8 @@ void dwc2_ep0_out_start(struct dwc2 *dwc) {
 	doeptsize0.d32 = dwc_readl(&dev_if->out_ep_regs[0]->doeptsiz);
 	doepdma = dwc_readl(&dev_if->out_ep_regs[0]->doepdma);
 
-        if (unlikely(dwc->last_ep0out_normal))
-            goto directly_start;
+	if (unlikely(dwc->last_ep0out_normal))
+		goto directly_start;
 
 	if (dwc->setup_prepared) {
 		if (!doepctl.b.epena) {
@@ -445,7 +445,6 @@ static void dwc2_ep0_start_transfer(struct dwc2 *dwc,
 			req->next_dma_addr = dwc->ep0out_shadow_dma;
 			req->zlp_transfered = 0;
 		}
-
 		dwc2_ep0_start_out_transfer(dwc, req);
 	}
 }
@@ -458,6 +457,7 @@ static int __dwc2_gadget_ep0_queue(struct dwc2_ep *outep0,
 	int		 can_queue = 0;
 
 	BUG_ON(outep0->is_in);
+	BUG_ON(dwc2_is_host_mode(dwc));
 
 	DWC2_EP0_DEBUG_MSG("ep0_queue: req = 0x%p len = %d zero = %d delayed_status = %d ep0state=%s three=%d\n",
 			   req, req->request.length, req->request.zero,
@@ -658,6 +658,7 @@ int dwc2_gadget_ep0_set_halt(struct usb_ep *ep, int value) {
 	struct dwc2_ep	*dep = to_dwc2_ep(ep);
 	struct dwc2	*dwc = dep->dwc;
 	unsigned long	 flags;
+	BUG_ON(dwc2_is_host_mode(dwc));
 
 	dwc2_spin_lock_irqsave(dwc, flags);
 	dwc2_ep0_stall_and_restart(dwc);
@@ -734,13 +735,13 @@ static int dwc2_ep0_handle_status(struct dwc2 *dwc,
 		return -EINVAL;
 	};
 
-	response_pkt = (__le16 *) &dwc->status_buf;
+	response_pkt = (__le16 *) dwc->status_buf;
 	*response_pkt = cpu_to_le16(usb_status);
 
 	dep = dwc2_ep0_get_in_ep(dwc);
 	dwc->ep0_usb_req.dwc2_ep = dep;
 	dwc->ep0_usb_req.request.length = sizeof(*response_pkt);
-	dwc->ep0_usb_req.request.buf = &dwc->status_buf;
+	dwc->ep0_usb_req.request.buf = dwc->status_buf;
 	dwc->ep0_usb_req.request.complete = dwc2_ep0_status_cmpl;
 	dwc->ep0_usb_req.transfering = 0;
 
@@ -918,16 +919,7 @@ static void dwc2_ep0_inspect_setup(struct dwc2 *dwc)
 	else
 		ret = dwc2_ep0_delegate_req(dwc, ctrl);
 
-	/* copied from storage_common.c */
-#define EP0_BUFSIZE	256
-#define DELAYED_STATUS	(EP0_BUFSIZE + 999)	/* An impossibly large value */
-	/* seems that never return this value, but through the code,
-	 * this return value is possible, so print a warning here.
-	 */
-	if (unlikely(ret == DELAYED_STATUS))
-		DWC2_EP0_DEBUG_MSG("DELAYED_STATUS!!!\n");
-
-	if ((ret == DELAYED_STATUS) || (ret == USB_GADGET_DELAYED_STATUS)) {
+	if (ret == USB_GADGET_DELAYED_STATUS) {
 		dwc->ep0state = EP0_STATUS_PHASE;
 		dwc->delayed_status = true;
 		dwc->delayed_status_sent = false;
@@ -999,9 +991,8 @@ static void dwc2_ep0_out_complete_data(struct dwc2 *dwc) {
 	int			 trans_count = 0;
 
 	curr_req = next_request(&ep0->request_list);
-	if (curr_req == NULL) {
+	if (curr_req == NULL)
 		return;
-	}
 
 	if (dwc->dma_enable) {
 		if (dwc->dma_desc_enable) {
@@ -1102,23 +1093,6 @@ static void dwc2_ep0_xfer_complete(struct dwc2 *dwc, int is_in, int setup) {
 	if (depctl.b.epena) {
 		DWC2_EP0_DEBUG_MSG("ep0%s is remain enabled when xfercompl\n",
 				is_in ? "IN" : "OUT");
-
-#if 0
-		if (!is_in) {
-			int timeout = 3 * 1000;
-			depctl_data_t tmp_depctl;
-
-			do {
-				udelay(1);
-				tmp_depctl.d32 = dwc_readl(&dwc->dev_if.out_ep_regs[0]->doepctl);
-
-				timeout --;
-				if (timeout == 0) {
-					dwc2_ep0_dump_regs(dwc);
-				}
-			} while (tmp_depctl.b.epena && (timeout > 0));
-		}
-#endif
 	}
 
 	dwc2_ep0_get_ep_by_dir(dwc, is_in)->flags &= ~DWC2_EP_BUSY;
@@ -1297,6 +1271,11 @@ static void dwc2_ep0_handle_out_interrupt(struct dwc2_ep *dep) {
 		CLEAR_OUT_EP0_INTR(ahberr);
 
 		doepint.b.ahberr = 0;
+	}
+
+	if (doepint.b.outtknepdis) {
+		CLEAR_OUT_EP0_INTR(outtknepdis);
+		doepint.b.outtknepdis = 0;
 	}
 
 	/* Setup Phase Done*/

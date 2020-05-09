@@ -12,12 +12,19 @@ enum workphase {
 enum codecdir {
 	HWH264ENC = 0,
 	HWH264DEC,
+	HWH265ENC = (1 << 4),
+	HWH265DEC,
 	HWJPEGENC = (1 << 16),
 	HWJPEGDEC,
 };
 
-#define RANDOM_ID	(-1)
-#define UNUSED_TID	(-1)
+#define RANDOM_ID	    (-1)
+#define JZ_NVPU_ID      (0x1 << 24)
+#define VPU_HELIX_ID    (0x1 << 25)
+#define VPU_RADIX_ID    (0x1 << 26)
+#define VPU_RADOM_BM    (0x7f << 24)
+
+#define UNUSED_TID	    (-1)
 
 struct channel_node {
 	struct list_head	*clist;	/* channel list node */

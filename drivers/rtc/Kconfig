@@ -154,6 +154,14 @@ config RTC_DRV_JZ
           To compile this driver as a module, choose M here: the
           module will be called rtc-jz.
 
+config USE_EXTERNAL_24M_CLOCK
+    bool "use external 24M clock"
+	depends on RTC_DRV_JZ
+    default n
+        help
+        If you say Y here the RTC will use an external 24M clock
+         as the clock source
+
 comment "I2C RTC drivers"
 	depends on I2C
 

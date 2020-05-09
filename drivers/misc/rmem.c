@@ -20,7 +20,16 @@
 #include <linux/mm.h>
 #include <linux/syscalls.h>
 
+#define RMEN_MAGIC			'r'
+#define RMEN_CMD_FLUSH_CACHE		_IOWR(RMEN_MAGIC, 0, struct rmem_flush_cache_info)
+
 static struct miscdevice	mdev;
+
+struct rmem_flush_cache_info {
+	unsigned int	addr;
+	unsigned int	len;
+	unsigned int	dir;
+};
 
 static int rmem_open(struct inode *inode, struct file *filp)
 {
@@ -32,6 +41,30 @@ static int rmem_release(struct inode *inode, struct file *filp)
 {
 	pr_debug("[%d:%d] %s\n", current->tgid, current->pid, __func__);
 	return 0;
+}
+
+static long rmem_cmd_flush_cache(long arg)
+{
+	struct rmem_flush_cache_info info;
+	long ret = 0;
+	if (copy_from_user(&info, (void *)arg, sizeof(info))) {
+		return -EFAULT;
+	}
+
+	dma_cache_sync(NULL, (void *)info.addr, info.len, info.dir);
+
+	return ret;
+}
+
+static long rmem_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	switch (cmd) {
+	case RMEN_CMD_FLUSH_CACHE:
+		return rmem_cmd_flush_cache(arg);
+	default:
+		pr_err("Unknown ioctl: 0x%.8X\n", cmd);
+		return -EINVAL;
+	}
 }
 
 static int rmem_mmap(struct file *file, struct vm_area_struct *vma)
@@ -53,6 +86,7 @@ static int rmem_mmap(struct file *file, struct vm_area_struct *vma)
 static struct file_operations rmem_misc_fops = {
 	.open		= rmem_open,
 	.release	= rmem_release,
+	.unlocked_ioctl	= rmem_ioctl,
 	.mmap		= rmem_mmap,
 };
 

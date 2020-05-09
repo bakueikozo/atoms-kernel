@@ -169,4 +169,7 @@ source "drivers/ipack/Kconfig"
 source "drivers/reset/Kconfig"
 
 source "drivers/nand/Kconfig"
+
+#source "drivers/dmic/Kconfig"
+
 endmenu

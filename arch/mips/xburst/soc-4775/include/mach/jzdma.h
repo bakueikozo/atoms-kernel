@@ -129,7 +129,8 @@ enum jzdma_req_type {
 enum jzdma_type {
 	JZDMA_REQ_INVAL = 0,
 #define _RTP(NAME) JZDMA_REQ_##NAME = JZDMA_REQ_##NAME##_TX
-	_RTP(I2S1),
+	//_RTP(I2S1),
+	_RTP(AEC),
 	_RTP(I2S0),
 	JZDMA_REQ_AUTO = JZDMA_REQ_AUTO_TXRX,
 	JZDMA_REQ_SADC = JZDMA_REQ_SADC_RX,

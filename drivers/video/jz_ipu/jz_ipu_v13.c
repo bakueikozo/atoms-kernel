@@ -32,12 +32,12 @@
 #include <linux/proc_fs.h>
 #include <linux/delay.h>
 #include <linux/completion.h>
-
+#include <linux/time.h>
 #include "jz_regs_v13.h"
 #include "jz_ipu_v13.h"
 
 
-/* #define DEBUG */
+//#define DEBUG
 #ifdef	DEBUG
 static int debug_ipu = 1;
 
@@ -54,36 +54,16 @@ struct ipu_reg_struct jz_ipu_regs_name[] = {
 	{"IPU_D_FMT", IPU_D_FMT},
 	{"IPU_Y_ADDR", IPU_Y_ADDR},
 	{"IPU_U_ADDR", IPU_U_ADDR},
-	{"IPU_V_ADDR", IPU_V_ADDR},
 	{"IPU_IN_FM_GS", IPU_IN_FM_GS},
 	{"IPU_Y_STRIDE", IPU_Y_STRIDE},
 	{"IPU_UV_STRIDE", IPU_UV_STRIDE},
 	{"IPU_OUT_ADDR", IPU_OUT_ADDR},
-	{"IPU_OUT_GS", IPU_OUT_GS},
 	{"IPU_OUT_STRIDE", IPU_OUT_STRIDE},
-	{"IPU_CSC_C0_COEF", IPU_CSC_C0_COEF},
-	{"IPU_CSC_C1_COEF", IPU_CSC_C1_COEF},
-	{"IPU_CSC_C2_COEF", IPU_CSC_C2_COEF},
-	{"IPU_CSC_C3_COEF", IPU_CSC_C3_COEF},
-	{"IPU_CSC_C4_COEF", IPU_CSC_C4_COEF},
-	{"IPU_CSC_OFFSET_PARA", IPU_CSC_OFFSET_PARA},
-	{"IPU_SRC_TLB_ADDR", IPU_SRC_TLB_ADDR},
-	{"IPU_DEST_TLB_ADDR", IPU_DEST_TLB_ADDR},
-	{"IPU_ADDR_CTRL", IPU_ADDR_CTRL},
-	{"IPU_Y_ADDR_N", IPU_Y_ADDR_N},
-	{"IPU_U_ADDR_N", IPU_U_ADDR_N},
-	{"IPU_V_ADDR_N", IPU_V_ADDR_N},
-	{"IPU_OUT_ADDR_N", IPU_OUT_ADDR_N},
-	{"IPU_SRC_TLB_ADDR_N", IPU_SRC_TLB_ADDR_N},
-	{"IPU_DEST_TLB_ADDR_N", IPU_DEST_TLB_ADDR_N},
-	{"IPU_TRIG", IPU_TRIG},
-	{"IPU_FM_XYOFT", IPU_FM_XYOFT},
+	{"IPU_OUT_V_ADDR", IPU_OUT_V_ADDR},
+	{"IPU_OUT_V_STRIDE", IPU_OUT_V_STRIDE},
+	{"IPU_REG_CTRL", IPU_REG_CTRL},
+	{"IPU_TRIGGER", IPU_TRIGGER},
 	{"IPU_GLB_CTRL", IPU_GLB_CTRL},
-	{"IPU_OSD_CTRL", IPU_OSD_CTRL},
-	{"IPU_RSZ_COEF", IPU_RSZ_COEF},
-	{"IPU_TLB_PARA", IPU_TLB_PARA},
-	{"IPU_VADDR_STLB_ERR", IPU_VADDR_STLB_ERR},
-	{"IPU_VADDR_DTLB_ERR", IPU_VADDR_DTLB_ERR},
 
 	{"IPU_NV_OUT_ADDR", IPU_NV_OUT_ADDR},
 	{"IPU_NV_OUT_STRIDE", IPU_NV_OUT_STRIDE},
@@ -121,7 +101,6 @@ struct ipu_reg_struct jz_ipu_regs_name[] = {
 	{"IPU_OSD_CH2_BAK_ARGB", IPU_OSD_CH2_BAK_ARGB},
 	{"IPU_OSD_CH3_BAK_ARGB", IPU_OSD_CH3_BAK_ARGB},
 	{"IPU_OSD_CH_B_BAK_ARGB", IPU_OSD_CH_B_BAK_ARGB},
-	{"IPU_OSD_DST_PADDING_ARGB", IPU_OSD_DST_PADDING_ARGB},
 	{"IPU_CH0_CSC_C0_COEF", IPU_CH0_CSC_C0_COEF},
 	{"IPU_CH0_CSC_C1_COEF", IPU_CH0_CSC_C1_COEF},
 	{"IPU_CH0_CSC_C2_COEF", IPU_CH0_CSC_C2_COEF},
@@ -169,53 +148,6 @@ static void reg_bit_clr(struct jz_ipu *ipu, int offset, unsigned int bit)
 	reg_write(ipu, offset, reg);
 }
 
-
-
-static unsigned int _hal_infmt_is_packaged(int hal_fmt)
-{
-	unsigned int is_packaged = 0;
-
-	switch (hal_fmt) {
-		case HAL_PIXEL_FORMAT_YCbCr_422_SP:
-		case HAL_PIXEL_FORMAT_YCbCr_420_SP:
-		case HAL_PIXEL_FORMAT_YCbCr_422_P:
-		case HAL_PIXEL_FORMAT_YCbCr_420_P:
-		case HAL_PIXEL_FORMAT_JZ_YUV_420_P:
-		case HAL_PIXEL_FORMAT_YCbCr_420_B:
-		case HAL_PIXEL_FORMAT_JZ_YUV_420_B:
-		case HAL_PIXEL_FORMAT_NV12:
-		case HAL_PIXEL_FORMAT_NV21:
-			is_packaged = 0;
-			break;
-		case HAL_PIXEL_FORMAT_RGBA_5551:
-		case HAL_PIXEL_FORMAT_BGRA_5551:
-		case HAL_PIXEL_FORMAT_RGBA_8888:
-		case HAL_PIXEL_FORMAT_ARGB_8888:
-		case HAL_PIXEL_FORMAT_ABGR_8888:
-		case HAL_PIXEL_FORMAT_RGBX_8888:
-		case HAL_PIXEL_FORMAT_RGB_888:
-		case HAL_PIXEL_FORMAT_BGRA_8888:
-		case HAL_PIXEL_FORMAT_BGRX_8888:
-		case HAL_PIXEL_FORMAT_RGB_565:
-		case HAL_PIXEL_FORMAT_YCbCr_422_I:
-		case HAL_PIXEL_FORMAT_YCbCr_420_I:
-		default:
-			is_packaged = 1;
-			break;
-	}
-
-	return is_packaged;
-}
-
-static void _ipu_set_pkg_mode(struct jz_ipu *ipu, struct ipu_param *ipu_param)
-{
-	if (_hal_infmt_is_packaged(ipu_param->bg_fmt))
-		__enable_pkg_mode();
-	else
-		__disable_pkg_mode();
-
-	return;
-}
 static unsigned int _hal_to_ipu_infmt(int hal_fmt, int *isrgb)
 {
 	unsigned int ipu_fmt = IN_FMT_YUV420;
@@ -279,6 +211,7 @@ static unsigned int _hal_to_ipu_infmt(int hal_fmt, int *isrgb)
 		*isrgb = rgb;
 	return ipu_fmt;
 }
+
 static unsigned int _hal_to_ipu_outfmt(int hal_fmt)
 {
 	unsigned int ipu_fmt = OUT_FMT_RGB888;
@@ -306,6 +239,9 @@ static unsigned int _hal_to_ipu_outfmt(int hal_fmt)
 		case HAL_PIXEL_FORMAT_NV12:
 			ipu_fmt = OUT_FMT_NV12;
 			break;
+        case HAL_PIXEL_FORMAT_HSV:/*Add HSV*/
+            ipu_fmt = OUT_FMT_HSV;
+            break;
 		case HAL_PIXEL_FORMAT_NV21:
 			ipu_fmt = OUT_FMT_NV21;
 			break;
@@ -335,7 +271,6 @@ static int _ipu_set_bg_route(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 
 	struct ipu_param *ip = ipu_param;
 
-	//bgrgb = ip->osd_bg_is_rgb;
 	srcw = ip->bg_w;
 	srch = ip->bg_h;
 	outw = ip->bg_w;
@@ -360,9 +295,11 @@ static int _ipu_set_bg_route(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 			break;
 	}
 	reg_write(ipu, IPU_IN_FM_GS, (IN_FM_W(srcw) | IN_FM_H(srch)));
-	reg_write(ipu, IPU_OUT_GS, (OUT_FM_W(outwstride) | OUT_FM_H(outh))); //This IPU_OUT_GS register was not use!
 
-	reg_write(ipu, IPU_OSD_CH_B_BAK_ARGB, 0xffaa7733);
+   if (ip->cmd & IPU_CMD_OSD)
+    {
+	    reg_write(ipu, IPU_OSD_CH_B_BAK_ARGB, 0xffaa7733);
+    }
 
 	switch (ip->out_fmt) {
 		case HAL_PIXEL_FORMAT_RGBX_8888:
@@ -385,15 +322,27 @@ static int _ipu_set_bg_route(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 	if (outfmt == OUT_FMT_YUV422) {
 		outfmt_bits |= YUV_PKG_OUT_OFT_Y1UY0V;
 	}
-	if (ip->bg_fmt == HAL_PIXEL_FORMAT_NV12) {
-		reg_val = 0x2;
-	} else if (ip->bg_fmt == HAL_PIXEL_FORMAT_NV21) {
-		reg_val = 0x3;
-	} else{
-		reg_val = infmt_bits | outfmt_bits | outrgb_bits;
-//		reg_val = infmt_bits;
-	}
+
+    /****** Add HSV *******/
+    if ((outfmt == OUT_FMT_HSV) || (ip->out_fmt == OUT_FMT_HSV)) {/* out format */
+        reg_val = 0x4;
+    } else if ((outfmt == OUT_FMT_RGB888) || (ip->out_fmt == OUT_FMT_RGB888)) {
+        reg_val = 0x40;
+    } else if ((outfmt == OUT_FMT_NV21) || (ip->out_fmt == OUT_FMT_NV21)) {
+        reg_val = 0x3;
+    }
 	reg_write(ipu, IPU_D_FMT, reg_val);
+
+    if (ip->cmd & IPU_CMD_OSD) {
+	    if (ip->bg_fmt == HAL_PIXEL_FORMAT_NV12) {
+		    reg_val = 0x2;
+	    } else if (ip->bg_fmt == HAL_PIXEL_FORMAT_NV21) {
+		    reg_val = 0x3;
+	    } else {
+		    reg_val = infmt_bits | outfmt_bits | outrgb_bits;
+	    }
+	    reg_write(ipu, IPU_D_FMT, reg_val);
+    }
 	/*
 	* IPU_D_FMT just use 0~6 bit, if IPU_OSD_CH_BK_PARA set CH_BK_PIC_TYPE ,
 	* and the IPU was use to do OSD, this register OUT_FMT bits was valueless,
@@ -405,18 +354,22 @@ static int _ipu_set_bg_route(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 		__enable_blk_mode();
 	}
 
-	if ((ip->out_fmt == HAL_PIXEL_FORMAT_NV12) || (ip->out_fmt == HAL_PIXEL_FORMAT_NV21)) {
+	if ((ip->out_fmt == HAL_PIXEL_FORMAT_NV12) || (ip->out_fmt == HAL_PIXEL_FORMAT_NV21)) {/*Add NV12 or NV21*/
 		reg_write(ipu, IPU_OUT_STRIDE,	srcw);
-		reg_write(ipu, IPU_NV_OUT_STRIDE, srcw);
-
-	} else {
+        reg_write(ipu, IPU_NV_OUT_STRIDE, srcw);
+	} else if (ip->out_fmt == HAL_PIXEL_FORMAT_HSV) {/* Add HSV */
+        reg_write(ipu, IPU_OUT_STRIDE, srcw);
+        reg_write(ipu, IPU_NV_OUT_STRIDE, srcw*2);
+        reg_write(ipu, IPU_OUT_V_STRIDE, srcw);
+    } else if (ip->out_fmt == HAL_PIXEL_FORMAT_BGRA_8888 || ip->out_fmt == HAL_PIXEL_FORMAT_RGBA_8888) {/* Add ARGB */
+        reg_write(ipu, IPU_OUT_STRIDE, srcw<<2);
+    } else {
 		reg_write(ipu, IPU_OUT_STRIDE, outwstride);
 	}
 
-
 	if (infmt == IN_FMT_YUV420_B) {
 		reg_write(ipu, IPU_Y_STRIDE, srcw * 16);
-	} else if (reg_read(ipu, IPU_FM_CTRL) & SPKG_SEL) {
+	} else if (reg_read(ipu, IPU_FM_CTRL) & (1 << 10)) {
 		reg_write(ipu, IPU_Y_STRIDE, srcw * 2);
 	} else {
 		reg_write(ipu, IPU_Y_STRIDE, srcw);
@@ -490,11 +443,8 @@ static int _ipu_set_bg_route(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 	IPU_DEBUG("ipu: enable background ch!!! \n");
 	reg_val |= CH_BK_EN;
 
-	reg_write(ipu, IPU_OSD_CTRL, GLB_ALPHA(0xff) | MOD_OSD(0x1) | OSD_PM); //This register was not use!
-	reg_write(ipu, IPU_OSD_CH_BK_PARA, reg_val);
+	reg_write(ipu, IPU_OSD_CH_BK_PARA, reg_val);/* input bk format */
 	IPU_DEBUG("ipu: Background reg val = 0x%08x\n", reg_read(ipu, IPU_OSD_CH_BK_PARA));
-
-	_ipu_set_pkg_mode(ipu, ip);
 
 	return ret;
 }
@@ -514,6 +464,9 @@ static int _ipu_osd_isrgb(unsigned int fmt)
 		case HAL_PIXEL_FORMAT_NV12:
 			isrgb = 0;
 			break;
+        case HAL_PIXEL_FORMAT_HSV:/*Add HSV*/
+            isrgb = 0;
+            break;
 		case HAL_PIXEL_FORMAT_NV21:
 			isrgb = 0;
 			break;
@@ -530,7 +483,6 @@ static int _ipu_osd_isrgb(unsigned int fmt)
 
 static int _ipu_set_osd_chx_route(struct jz_ipu *ipu, struct ipu_param *ip, int ch)
 {
-
 	unsigned int isrgb = 0;
 	unsigned int posx = 0;
 	unsigned int posy = 0;
@@ -587,9 +539,8 @@ static int _ipu_set_osd_chx_route(struct jz_ipu *ipu, struct ipu_param *ip, int 
 			break;
 	}
 
-	isrgb =  _ipu_osd_isrgb(fmt);
+	isrgb = _ipu_osd_isrgb(fmt);
 	if (isrgb < 0) {
-
 			printk("ipu: osd fmt err fmt = %d\n", fmt);
 			return -1;
 	}
@@ -603,7 +554,8 @@ static int _ipu_set_osd_chx_route(struct jz_ipu *ipu, struct ipu_param *ip, int 
 		reg_write(ipu, IPU_OSD_IN_CH0_Y_STRIDE+0x10*ch, srcw);
 		reg_write(ipu, IPU_OSD_IN_CH0_UV_STRIDE+0x10*ch, srcw);
 	}
-	if((srcw > 0) && (srch > 0)) {
+
+    if((srcw > 0) && (srch > 0)) {
 		if (isrgb == 1)
 			reg_write(ipu, IPU_OSD_CH0_GS+4*ch, (srcw << 16 << 2) | (srch << 0));
 		else if (isrgb == 2)       //The format is RGBA1555
@@ -636,7 +588,8 @@ static int _ipu_set_osd_chx_route(struct jz_ipu *ipu, struct ipu_param *ip, int 
 		reg_write(ipu, IPU_OSD_CH0_PARA+4*ch, para);
 	else
 		reg_write(ipu, IPU_OSD_CH0_PARA+4*ch, (0x1 | (0x2 << 11) | (0x01 << 1) | (0x32 << 3) | (0 << 19) | (0 << 18)));
-	return 0;
+
+    return 0;
 }
 
 static int _ipu_set_bg_buffer(struct jz_ipu *ipu, struct ipu_param *ipu_param)
@@ -644,7 +597,11 @@ static int _ipu_set_bg_buffer(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 	unsigned int bg_y_pbuf = 0;
 	unsigned int bg_u_pbuf = 0;
 	unsigned int bg_v_pbuf = 0;
-//	unsigned int infmt = 0;
+    unsigned int out_y_pbuf = 0;
+    unsigned int out_uv_pbuf = 0;
+    unsigned int out_v_pbuf = 0;
+    unsigned int out_nv21_y = 0;
+    unsigned int out_nv21_uv = 0;
 
 	struct ipu_param *ip = ipu_param;
 
@@ -653,29 +610,51 @@ static int _ipu_set_bg_buffer(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 		dev_err(ipu->dev, "ipu is NULL\n");
 		return -1;
 	}
-	/* nv12 */
+
+    /* nv12 */
 	bg_y_pbuf = ((unsigned int)ip->bg_buf_p);
 	bg_u_pbuf = ((unsigned int)ip->bg_buf_p) + ip->bg_w*ip->bg_h;
 	bg_v_pbuf = bg_u_pbuf;
 
+    if(ip->cmd & IPU_CMD_CSC) {
+        /* OUT HSV */
+        out_y_pbuf = ((unsigned int)ip->osd_ch0_buf_p) + (ip->bg_w*ip->bg_h)*2;
+        out_uv_pbuf = ((unsigned int)ip->osd_ch0_buf_p);
+        out_v_pbuf = ((unsigned int)ip->osd_ch0_buf_p) + (ip->bg_w*ip->bg_h)*3;
+
+        /* OUT NV21 */
+        out_nv21_y = ((unsigned int)ip->osd_ch0_buf_p);
+        out_nv21_uv = ((unsigned int)ip->osd_ch0_buf_p) + (ip->bg_w*ip->bg_h);
+    }
+
 	IPU_DEBUG("ipu: bg_y_pbuf = 0x%08x, bg_u_pbuf = 0x%08x, bg_v_pbuf = 0x%08x\n", bg_y_pbuf, bg_u_pbuf, bg_v_pbuf);
-//	infmt = _hal_to_ipu_infmt(ip->bg_fmt, 0);
-	__disable_spage_map();
 	reg_write(ipu, IPU_Y_ADDR, bg_y_pbuf);
 	reg_write(ipu, IPU_U_ADDR, bg_u_pbuf);
-	reg_write(ipu, IPU_V_ADDR, bg_v_pbuf);   //this register was not use!
-	__disable_dpage_map();
+
 	/* set out buff */
-	reg_write(ipu, IPU_OUT_ADDR, bg_y_pbuf);
-	reg_write(ipu, IPU_NV_OUT_ADDR, bg_u_pbuf);
-	return 0;
+    if (ip->cmd & IPU_CMD_CSC) {/* out addr */
+        if (ip->out_fmt == HAL_PIXEL_FORMAT_HSV) {
+            reg_write(ipu, IPU_OUT_ADDR, out_y_pbuf);
+            reg_write(ipu, IPU_NV_OUT_ADDR, out_uv_pbuf);
+            reg_write(ipu, IPU_OUT_V_ADDR, out_v_pbuf);
+        } else if (ip->out_fmt == HAL_PIXEL_FORMAT_NV21) {
+            reg_write(ipu, IPU_OUT_ADDR, out_nv21_y);
+            reg_write(ipu, IPU_NV_OUT_ADDR, out_nv21_uv);
+        } else {
+            reg_write(ipu, IPU_OUT_ADDR, out_uv_pbuf);/* OUT BGRA */
+        }
+    } else {
+	    reg_write(ipu, IPU_OUT_ADDR, bg_y_pbuf);
+	    reg_write(ipu, IPU_NV_OUT_ADDR, bg_u_pbuf);
+    }
+
+    return 0;
 }
 
 static int _ipu_set_osdx_buffer(struct jz_ipu *ipu, struct ipu_param *ipu_param, int ch)
 {
 	unsigned int osdx_y_pbuf = 0;
 	unsigned int osdx_uv_pbuf = 0;
-//	unsigned int infmt = 0;
 	struct ipu_param *ip = ipu_param;
 
 	IPU_DEBUG("ipu: %s:%d \n", __func__, __LINE__);
@@ -709,14 +688,15 @@ static int _ipu_set_osdx_buffer(struct jz_ipu *ipu, struct ipu_param *ipu_param,
 			return -1;
 			break;
 	}
-//	infmt = _hal_to_ipu_infmt(ip->bg_fmt, 0);
-	/* set osd chx addr */
+
+    /* set osd chx addr */
 	IPU_DEBUG("ipu: ch = %d, osdx_y_pbuf = 0x%08x, osdx_uv_pbuf = 0x%08x\n", ch, osdx_y_pbuf, osdx_uv_pbuf);
 	reg_write(ipu, IPU_OSD_IN_CH0_Y_ADDR+0x10*ch, osdx_y_pbuf);
 	reg_write(ipu, IPU_OSD_IN_CH0_UV_ADDR+0x10*ch, osdx_uv_pbuf);
 
 	return 0;
 }
+
 static int _ipu_dump_regs(struct jz_ipu *ipu)
 {
 	int i = 0;
@@ -740,6 +720,7 @@ static void _ipu_dump_param(struct jz_ipu *ipu)
 {
 	return;
 }
+
 static int ipu_dump_info(struct jz_ipu *ipu)
 {
 	int ret = 0;
@@ -763,7 +744,7 @@ static int ipu_start(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 		dev_err(ipu->dev, "ipu: ipu is NULL or ipu_param is NULL\n");
 		return -1;
 	}
-	if (0 == (ip->cmd & IPU_CMD_OSD)) {
+	if ((0 == (ip->cmd & IPU_CMD_OSD))&((0 == (ip->cmd & IPU_CMD_CSC)))) {
 
 		printk("ipu: error cmd 0x%08x\n", ip->cmd);
 		ret = -1;
@@ -772,8 +753,10 @@ static int ipu_start(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 	IPU_DEBUG("ipu: enter ipu_start %d\n", current->pid);
 
 	clk_enable(ipu->clk);
+#ifdef CONFIG_SOC_T31
+	clk_enable(ipu->ahb1_gate);
+#endif
 	__reset_ipu();
-
 
 	ret = _ipu_set_bg_route(ipu, ip);
 	if (ret) {
@@ -785,6 +768,19 @@ static int ipu_start(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 		printk("ipu: error _ipu_set_bg_buffer %d\n", ret);
 		goto err_ipu_set_bg_buffer;
 	}
+
+    if (ip->cmd & IPU_CMD_CSC) {
+		reg_write(ipu, IPU_REG_CTRL, 0xffffffff);
+        reg_write(ipu, IPU_OSD_CH0_PARA, 0x010417fa);
+        reg_write(ipu, IPU_OSD_CH_BK_PARA, 0x141000);
+
+		reg_write(ipu, IPU_CH0_CSC_C0_COEF, (0x4ad << 0) | (0 << 20));
+		reg_write(ipu, IPU_CH0_CSC_C1_COEF, (0x669 << 0) | (0x4ad << 20));
+		reg_write(ipu, IPU_CH0_CSC_C2_COEF, (0x193 << 0) | (0x344 << 20));
+		reg_write(ipu, IPU_CH0_CSC_C3_COEF, (0x4ad << 0) | (0x81a << 20));
+		reg_write(ipu, IPU_CH0_CSC_C4_COEF, 0);
+		reg_write(ipu, IPU_CH0_CSC_OFSET_PARA, (0x10 << 0) | (0x80 << 16));
+    }
 
 	if (ip->cmd & IPU_CMD_OSD0) {
 		ret = _ipu_set_osd_chx_route(ipu, ip, 0);
@@ -838,17 +834,17 @@ static int ipu_start(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 	__clear_ipu_out_end();
 	__ipu_enable_irq();
 
-	reg_write(ipu, IPU_ADDR_CTRL, 0xffffffff);
+	reg_write(ipu, IPU_REG_CTRL, 0xffffffff);
 
-	/* reg_bit_set(ipu, IPU_TRIG, 6<<6); */
+	/* reg_bit_set(ipu, IPU_TRIGGER, 6<<6); */
 	/* start ipu */
 	__start_ipu();
 
 #ifdef DEBUG
 	ipu_dump_info(ipu);
 #endif
-
 	IPU_DEBUG("ipu_start\n");
+
 	ret = wait_for_completion_interruptible_timeout(&ipu->done_ipu, msecs_to_jiffies(2000));
 	if (ret < 0) {
 		printk("ipu: done_ipu wait_for_completion_interruptible_timeout err %d\n", ret);
@@ -861,18 +857,27 @@ static int ipu_start(struct jz_ipu *ipu, struct ipu_param *ipu_param)
 	} else {
 		;
 	}
-	IPU_DEBUG("ipu: exit ipu_start %d\n", current->pid);
-	return 0;
+
+    IPU_DEBUG("ipu: exit ipu_start %d\n", current->pid);
+
+#ifdef CONFIG_SOC_T31
+	clk_disable(ipu->ahb1_gate);
+#endif
+
+    return 0;
+
 err_ipu_wait_for_done:
 err_ipu_set_osdx_buffer:
 err_ipu_set_bg_buffer:
 err_ipu_set_osd_chx_route:
 err_ipu_set_bg_route:
+#ifdef CONFIG_SOC_T31
+	clk_disable(ipu->ahb1_gate);
+#endif
 err_cmd:
 	return ret;
 
 }
-
 
 static long ipu_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
@@ -962,7 +967,7 @@ static long ipu_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 				dma_cache_sync(NULL, fc.addr, fc.size, DMA_BIDIRECTIONAL);
 			}
 			break;
-		default:
+	    default:
 			dev_err(ipu->dev, "invalid command: 0x%08x\n", cmd);
 			ret = -EINVAL;
 	}
@@ -1018,20 +1023,13 @@ static irqreturn_t ipu_irq_handler(int irq, void *data)
 	__ipu_disable_irq();
 	status = reg_read(ipu, IPU_STATUS);
 	IPU_DEBUG("----- %s, status= 0x%08x\n", __func__, status);
-	if (status & 0x100) {
-		printk("ipu: stlb err addr=%x\n", reg_read(ipu, IPU_VADDR_STLB_ERR));
-	}
-	if (status & 0x200) {
-		printk("ipu: dtlb err addr=%x\n", reg_read(ipu, IPU_VADDR_DTLB_ERR));
-	}
 	/* t10 supports 720P and max width 1280, but t20 supports 1080P and max width
 	 * is 1920; the width is limited to 1280 in hardware, so t20 status is 0x4,
 	 * and this status doesn't do anything including trigger interrupt,
 	 * just give a hint */
-//	if (status & 0x4) {
-//		printk("ipu: size error\n");
-//	}
-	complete(&ipu->done_ipu);
+    if (status & 0x1){
+        complete(&ipu->done_ipu);
+    }
 	return IRQ_HANDLED;
 }
 
@@ -1058,7 +1056,6 @@ static int ipu_probe(struct platform_device *pdev)
 	init_completion(&ipu->done_ipu);
 	init_completion(&ipu->done_buf);
 	complete(&ipu->done_buf);
-
 
 	ipu->res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!ipu->res) {
@@ -1093,6 +1090,14 @@ static int ipu_probe(struct platform_device *pdev)
 		ret = dev_err(&pdev->dev, "ipu clk get failed!\n");
 		goto err_get_clk;
 	}
+
+#ifdef CONFIG_SOC_T31
+	ipu->ahb1_gate = clk_get(ipu->dev, "ahb1");
+	if (IS_ERR(ipu->clk)) {
+		ret = dev_err(&pdev->dev, "ipu clk get failed!\n");
+		goto err_get_clk;
+	}
+#endif
 
 	dev_set_drvdata(&pdev->dev, ipu);
 

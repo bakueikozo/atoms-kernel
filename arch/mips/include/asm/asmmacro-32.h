@@ -62,6 +62,7 @@
 	.macro  fpu_save_double thread status tmp
 	.set    push
 	.set    noreorder
+	.set	hardfloat
 	sll     \tmp, \status, 31 - _ST0_FR
 	bgez    \tmp, 2f
 	 nop
@@ -117,6 +118,7 @@
 	.macro  fpu_restore_double thread status tmp
 	.set    push
 	.set    noreorder
+	.set	hardfloat
 	sll     \tmp, \status, 31 - _ST0_FR
 	bgez    \tmp, 1f                # 16 register mode?
 	 nop
@@ -129,6 +131,8 @@
 #else
 
 	.macro  fpu_save_double thread status tmp1=t0
+	.set	push
+	.set	hardfloat
 	cfc1	\tmp1,  fcr31
 	sdc1	$f0,  THREAD_FPR0(\thread)
 	sdc1	$f2,  THREAD_FPR2(\thread)
@@ -147,6 +151,7 @@
 	sdc1	$f28, THREAD_FPR28(\thread)
 	sdc1	$f30, THREAD_FPR30(\thread)
 	sw	\tmp1, THREAD_FCR31(\thread)
+	.set	pop
 	.endm
 
 	.macro	fpu_save_single thread tmp=t0
@@ -187,6 +192,8 @@
 	.endm
 
 	.macro	fpu_restore_double thread status tmp=t0
+	.set	push
+	.set	hardfloat
 	lw	\tmp, THREAD_FCR31(\thread)
 	ldc1	$f0,  THREAD_FPR0(\thread)
 	ldc1	$f2,  THREAD_FPR2(\thread)
@@ -205,6 +212,7 @@
 	ldc1	$f28, THREAD_FPR28(\thread)
 	ldc1	$f30, THREAD_FPR30(\thread)
 	ctc1	\tmp, fcr31
+	.set	pop
 	.endm
 
 	.macro	fpu_restore_single thread tmp=t0
